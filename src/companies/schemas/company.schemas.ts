@@ -33,7 +33,7 @@ export class Company {
   };
 
   @Prop()
-  createAt: Date;
+  createdAt: Date;
 
   @Prop()
   updateAt: Date;
