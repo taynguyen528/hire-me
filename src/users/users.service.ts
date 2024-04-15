@@ -42,6 +42,7 @@ export class UsersService {
       _id: id,
     });
   }
+  
   findOneByUserName(username: string) {
     return this.userModel.findOne({
       email: username,
