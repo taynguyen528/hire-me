@@ -46,7 +46,7 @@ export class AuthService {
     //set refresh_token as cookie
     response.cookie('refresh_token', refresh_token, {
       httpOnly: true,
-      maxAge: ms(this.configService.get<string>('JWT_ACCESS_EXPIRE')) ,
+      maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
       //httpOnly set = true -> cookie chỉ đọc phía server, không thể dùng js để lấy cookie phía client -> tăng tính bảo mật cookie
     });
 
@@ -86,6 +86,7 @@ export class AuthService {
       });
 
       let user = await this.usersService.findUserByToken(refreshToken);
+      // console.log(user);
       if (user) {
         //update refresh_token
         const { _id, name, email, role } = user;
@@ -107,8 +108,7 @@ export class AuthService {
 
         response.cookie('refresh_token', refresh_token, {
           httpOnly: true,
-          maxAge:
-            ms(this.configService.get<string>('JWT_ACCESS_EXPIRE')) ,
+          maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
           //httpOnly set = true -> cookie chỉ đọc phía server, không thể dùng js để lấy cookie phía client -> tăng tính bảo mật cookie
         });
 
@@ -122,6 +122,9 @@ export class AuthService {
           },
         };
       } else {
+        throw new BadRequestException(
+          `Refresh token không hợp lệ. Vui lòng login.`,
+        );
       }
     } catch (error) {
       throw new BadRequestException(
@@ -129,5 +132,11 @@ export class AuthService {
       );
       // console.log('check error:', error);
     }
+  };
+
+  logout = async (response: Response, user: IUser) => {
+    await this.usersService.updateUserToken('', user._id);
+    response.clearCookie('refresh_token');
+    return 'Ok';
   };
 }
