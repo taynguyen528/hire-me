@@ -11,6 +11,7 @@ export class AuthController {
   @Public() // tag @Public để không cần dùng jwt
   @UseGuards(LocalAuthGuard)
   @Post('/login')
+  @ResponseMessage('User Login')
   handleLogin(@Request() req) {
     // console.log(req.user);
     return this.authService.login(req.user);
