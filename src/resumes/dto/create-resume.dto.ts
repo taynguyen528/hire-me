@@ -21,7 +21,7 @@ export class CreateResumeDto {
   jobId: mongoose.Schema.Types.ObjectId;
 }
 
-export class CreateResumeCvDto {
+export class CreateUserCvDto {
   @IsNotEmpty({ message: 'url không được để trống' })
   url: string;
 
