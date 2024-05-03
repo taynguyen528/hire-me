@@ -91,7 +91,7 @@ export class PermissionsService {
     user: IUser,
   ) {
     if (!mongoose.Types.ObjectId.isValid(_id)) {
-      throw new BadRequestException('not found resume');
+      throw new BadRequestException('not found permission');
     }
 
     const { module, method, apiPath, name } = updatePermissionDto;
@@ -118,6 +118,7 @@ export class PermissionsService {
       { _id: id },
       { deletedBy: { _id: user._id, email: user.email } },
     );
+    
     return this.permissionModel.softDelete({
       _id: id,
     });
