@@ -9,10 +9,17 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './users.interface';
 import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
+import { USER_ROLE } from 'src/databases/sample';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schemas';
+
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(UserM.name) private userModel: SoftDeleteModel<UserDocument>,
+    @InjectModel(UserM.name)
+    private userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Role.name)
+    private roleModel: SoftDeleteModel<RoleDocument>,
   ) {}
 
   getHashPassword = (password: string) => {
@@ -108,7 +115,6 @@ export class UsersService {
         path: 'role',
         select: {
           name: 1,
-          permissions: 1,
         },
       });
   }
@@ -137,7 +143,7 @@ export class UsersService {
     }
 
     const foundUser = await this.userModel.findById(id);
-    if (foundUser.email === 'pttnguyen528@gmail.com') {
+    if (foundUser && foundUser.email === 'pttnguyen528@gmail.com') {
       throw new BadRequestException('Không thể xóa tài khoản của admin');
     }
 
@@ -165,6 +171,10 @@ export class UsersService {
         `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác!`,
       );
     }
+
+    // fetch user role
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE });
+
     const hashPassword = this.getHashPassword(password);
     let newRegister = await this.userModel.create({
       name,
@@ -173,7 +183,7 @@ export class UsersService {
       age,
       gender,
       address,
-      role: 'USER',
+      role: userRole?._id,
     });
     return newRegister;
   }
@@ -183,6 +193,8 @@ export class UsersService {
   };
 
   findUserByToken = async (refreshToken: string) => {
-    return await this.userModel.findOne({ refreshToken });
+    return await this.userModel
+      .findOne({ refreshToken })
+      .populate({ path: 'role', select: { name: 1 } });
   };
 }
