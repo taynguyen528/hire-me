@@ -10,12 +10,15 @@ import {
 import { AuthService } from './auth.service';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { LocalAuthGuard } from './local-auth.guard';
-import { RegisterUserDto } from 'src/users/dto/create-user.dto';
+import { RegisterUserDto, UserLoginDto } from 'src/users/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/users.interface';
 import { RolesService } from 'src/roles/roles.service';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth') //  route /
+@ApiTags('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -24,6 +27,8 @@ export class AuthController {
 
   @Public() // tag @Public để không cần dùng jwt
   @UseGuards(LocalAuthGuard)
+  @UseGuards(ThrottlerGuard)
+  @ApiBody({ type: UserLoginDto })
   @Post('/login')
   @ResponseMessage('User Login')
   handleLogin(@Req() req, @Res({ passthrough: true }) response: Response) {
