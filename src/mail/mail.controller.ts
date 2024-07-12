@@ -9,7 +9,9 @@ import {
 } from 'src/subscribers/schemas/subscriber.schemas';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schemas';
 import { InjectModel } from '@nestjs/mongoose';
-
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('mail')
 @Controller('mail')
 export class MailController {
   constructor(
@@ -26,6 +28,8 @@ export class MailController {
   @Get()
   @Public()
   @ResponseMessage('Test email')
+  @Cron('0 0 0 * * 0') // 0h 00p every sunday
+  // @Cron("*/30 * * * * *") // Every 30 seconds
   async handleTestEmail() {
     const subscribers = await this.subscriberModel.find({});
     for (const subs of subscribers) {
