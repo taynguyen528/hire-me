@@ -16,6 +16,8 @@ import { IUser } from 'src/users/users.interface';
 import { RolesService } from 'src/roles/roles.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { GoogleAuthGuard } from './google-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth') //  route /
 @ApiTags('auth')
@@ -73,5 +75,21 @@ export class AuthController {
     @User() user: IUser,
   ) {
     return this.authService.logout(response, user);
+  }
+
+  // Google oauth 2.0
+  @Public()
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleLogin() {
+    // Đây sẽ redirect đến Google
+  }
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
+    const user = await this.authService.login(req.user, res);
+    res.redirect(`http://localhost:5173?token=${user.access_token}`);
   }
 }

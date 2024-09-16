@@ -7,6 +7,10 @@ import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { Response } from 'express';
 import { RolesService } from 'src/roles/roles.service';
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { UsersModule } from 'src/users/users.module';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +19,9 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private rolesService: RolesService,
+
+    @InjectModel(User.name)
+    private userModel: SoftDeleteModel<UserDocument>,
   ) {}
 
   //username/ pass là 2 tham số thư viện passport nó trả về
@@ -34,7 +41,6 @@ export class AuthService {
         return objUser;
       }
     }
-
     return null;
   }
 
