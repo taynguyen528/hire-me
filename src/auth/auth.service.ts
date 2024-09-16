@@ -74,7 +74,7 @@ export class AuthService {
 
   async register(user: RegisterUserDto) {
     let newUser = await this.usersService.register(user);
-    // console.log('check new User: ', newUser);
+    // console.log('check new User (auth service): ', newUser);
     return {
       _id: newUser?._id,
       createdAt: newUser?.createdAt,

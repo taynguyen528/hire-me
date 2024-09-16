@@ -29,7 +29,7 @@ export class UsersService {
   };
 
   async create(createUserDto: CreateUserDto, @User() user: IUser) {
-    const { name, email, password, age, gender, address, role, company } =
+    const { name, email, password, birthday, gender, address, role, company } =
       createUserDto;
 
     // check email
@@ -46,7 +46,7 @@ export class UsersService {
       name,
       email,
       password: hashPassword,
-      age,
+      birthday,
       gender,
       address,
       role,
@@ -163,7 +163,7 @@ export class UsersService {
   }
 
   async register(user: RegisterUserDto) {
-    const { name, email, password, age, gender, address } = user;
+    const { name, email, password, birthday, gender, address } = user;
     // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
@@ -180,11 +180,12 @@ export class UsersService {
       name,
       email,
       password: hashPassword,
-      age,
+      birthday,
       gender,
       address,
       role: userRole?._id,
     });
+    // console.log('newRegister(user service) : ', newRegister);
     return newRegister;
   }
 
