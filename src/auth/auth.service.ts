@@ -46,6 +46,7 @@ export class AuthService {
 
   async login(user: IUser, response: Response) {
     const { _id, name, email, role, permissions } = user;
+    // console.log('check role: ', role);
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -65,6 +66,17 @@ export class AuthService {
       maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
       //httpOnly set = true -> cookie chỉ đọc phía server, không thể dùng js để lấy cookie phía client -> tăng tính bảo mật cookie
     });
+
+    // console.log({
+    //   access_token: this.jwtService.sign(payload),
+    //   user: {
+    //     _id,
+    //     name,
+    //     email,
+    //     role,
+    //     permissions,
+    //   },
+    // });
 
     return {
       access_token: this.jwtService.sign(payload),

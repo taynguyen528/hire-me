@@ -10,15 +10,15 @@ import ms from 'ms';
 import { AuthController } from './auth.controller';
 import { RolesModule } from 'src/roles/roles.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserSchema } from 'src/users/schemas/user.schema';
+import { User, UserSchema } from 'src/users/schemas/user.schema';
 import { GoogleStrategy } from './passport/google.strategy';
+import { UsersService } from 'src/users/users.service';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     RolesModule,
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
