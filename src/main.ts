@@ -25,7 +25,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      // forbidNonWhitelisted: true
+      forbidNonWhitelisted: true, // nếu truyền thừa thuộc tính thì sẽ báo lỗi.
     }),
   );
 

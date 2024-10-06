@@ -35,12 +35,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     const { emails, name, photos } = profile;
     const email = emails[0].value;
-    // console.log('check profile: ', profile);
 
     let existingUser = await this.userModel.findOne({ email });
 
     if (existingUser) {
-      // console.log('existingUser: ', Boolean(existingUser));
       done(null, existingUser);
     } else {
       const newUser = await this.usersService.createFromGoogle(

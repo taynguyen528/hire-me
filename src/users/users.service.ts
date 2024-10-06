@@ -163,7 +163,7 @@ export class UsersService {
   }
 
   async register(user: RegisterUserDto) {
-    const { name, email, password, birthday, gender, address } = user;
+    const { name, email, password } = user;
     // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
@@ -174,18 +174,15 @@ export class UsersService {
 
     // fetch user role
     const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-    console.log('userRole: ', userRole);
+
     const hashPassword = this.getHashPassword(password);
-    let newRegister = await this.userModel.create({
+    const newRegister = await this.userModel.create({
       name,
       email,
       password: hashPassword,
-      birthday,
-      gender,
-      address,
       role: userRole?._id,
     });
-    // console.log('newRegister(user service) : ', newRegister);
+
     return newRegister;
   }
 

@@ -13,3 +13,10 @@ export interface IUser {
     module: string;
   }[];
 }
+
+export interface Permission {
+  _id: string;
+  name: string;
+  apiPath: string;
+  module: string;
+}

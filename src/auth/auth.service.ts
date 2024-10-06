@@ -44,7 +44,7 @@ export class AuthService {
 
   async login(user: IUser, response: Response) {
     const { _id, name, email, role, permissions } = user;
-    // console.log('check role: ', role);
+
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -65,17 +65,6 @@ export class AuthService {
       //httpOnly set = true -> cookie chỉ đọc phía server, không thể dùng js để lấy cookie phía client -> tăng tính bảo mật cookie
     });
 
-    // console.log({
-    //   access_token: this.jwtService.sign(payload),
-    //   user: {
-    //     _id,
-    //     name,
-    //     email,
-    //     role,
-    //     permissions,
-    //   },
-    // });
-
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -90,7 +79,6 @@ export class AuthService {
 
   async register(user: RegisterUserDto) {
     let newUser = await this.usersService.register(user);
-    // console.log('check new User (auth service): ', newUser);
     return {
       _id: newUser?._id,
       createdAt: newUser?.createdAt,
@@ -112,7 +100,7 @@ export class AuthService {
         secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
       });
 
-      let user = await this.usersService.findUserByToken(refreshToken);
+      const user = await this.usersService.findUserByToken(refreshToken);
       // console.log(user);
       if (user) {
         //update refresh_token
@@ -162,7 +150,6 @@ export class AuthService {
       throw new BadRequestException(
         `Refresh token không hợp lệ. Vui lòng login.`,
       );
-      // console.log('check error:', error);
     }
   };
 
