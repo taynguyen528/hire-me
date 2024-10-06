@@ -9,6 +9,11 @@ import { JwtStrategy } from './passport/jwt.strategy';
 import ms from 'ms';
 import { AuthController } from './auth.controller';
 import { RolesModule } from 'src/roles/roles.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from 'src/users/schemas/user.schema';
+import { GoogleStrategy } from './passport/google.strategy';
+import { UsersService } from 'src/users/users.service';
+
 @Module({
   imports: [
     UsersModule,
@@ -25,7 +30,7 @@ import { RolesModule } from 'src/roles/roles.module';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, GoogleStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })

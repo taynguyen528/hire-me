@@ -31,14 +31,15 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Password không được để trống!' })
   password: string;
 
-  @IsNotEmpty({ message: 'Age không được để trống!' })
-  age: number;
+  @IsNotEmpty({ message: 'Birthday không được để trống!' })
+  @IsString()
+  birthday: string;
 
   @IsNotEmpty({ message: 'Gender không được để trống!' })
   gender: string;
 
   @IsNotEmpty({ message: 'Address không được để trống!' })
-  address: number;
+  address: string;
 
   @IsNotEmpty({ message: 'Role không được để trống!' })
   @IsMongoId({ message: 'Role có định dạng là mongo id' })
@@ -63,14 +64,17 @@ export class RegisterUserDto {
   @IsNotEmpty({ message: 'Password không được để trống!' })
   password: string;
 
-  @IsNotEmpty({ message: 'Age không được để trống!' })
-  age: number;
+  @IsNotEmpty({ message: 'Birthday không được để trống!' })
+  @IsString()
+  birthday: string;
 
+  @IsString()
   @IsNotEmpty({ message: 'Gender không được để trống!' })
   gender: string;
 
+  @IsString()
   @IsNotEmpty({ message: 'Address không được để trống!' })
-  address: number;
+  address: string;
 }
 
 export class UserLoginDto {
@@ -78,6 +82,7 @@ export class UserLoginDto {
   @IsNotEmpty()
   @ApiProperty({ example: 'email', description: 'email' })
   readonly username: string;
+
   @IsString()
   @IsNotEmpty()
   @ApiProperty({

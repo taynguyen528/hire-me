@@ -16,6 +16,8 @@ import { IUser } from 'src/users/users.interface';
 import { RolesService } from 'src/roles/roles.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { GoogleAuthGuard } from './google-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth') //  route /
 @ApiTags('auth')
@@ -73,5 +75,44 @@ export class AuthController {
     @User() user: IUser,
   ) {
     return this.authService.logout(response, user);
+  }
+
+  // Google oauth 2.0
+  @Public()
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleLogin() {
+    // Đây sẽ redirect đến Google
+  }
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  // async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
+  //   const user = await this.authService.login(req.user, res);
+  //   console.log('user google: ', user);
+  //   console.log('check req.user', req.user);
+  //   res.redirect(`http://localhost:5173?token=${user.access_token}`);
+  // }
+  async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
+    const user = req.user;
+    console.log('req.user: ', req.user);
+    const userRole = user.role as unknown as { _id: string; name: string };
+    const roleData = await this.rolesService.findOne(userRole._id);
+
+    const updatedUser = {
+      ...user,
+      role: {
+        _id: userRole._id,
+        name: roleData.name,
+      },
+      permissions: roleData.permissions || [],
+    };
+
+    console.log('updatedUser: ', updatedUser);
+
+    const responseUser = await this.authService.login(updatedUser, res);
+
+    res.redirect(`http://localhost:5173?token=${responseUser.access_token}`);
   }
 }
