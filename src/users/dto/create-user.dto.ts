@@ -81,7 +81,7 @@ export class UserLoginDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ example: 'email', description: 'email' })
-  readonly username: string;
+  readonly email: string;
 
   @IsString()
   @IsNotEmpty()

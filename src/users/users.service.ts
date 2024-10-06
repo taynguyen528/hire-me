@@ -106,10 +106,10 @@ export class UsersService {
       }); //exclude >< include
   }
 
-  findOneByUserName(username: string) {
+  findOneByEmail(email: string) {
     return this.userModel
       .findOne({
-        email: username,
+        email,
       })
       .populate({
         path: 'role',
@@ -207,7 +207,7 @@ export class UsersService {
     const hashedPassword = hashSync(password, salt);
 
     const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-    console.log(userRole);
+    // console.log(userRole);
     if (!userRole) {
       throw new BadRequestException('Role không tồn tại');
     }

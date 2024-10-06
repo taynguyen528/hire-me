@@ -9,7 +9,6 @@ import { Response } from 'express';
 import { RolesService } from 'src/roles/roles.service';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { UsersModule } from 'src/users/users.module';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
@@ -24,9 +23,8 @@ export class AuthService {
     private userModel: SoftDeleteModel<UserDocument>,
   ) {}
 
-  //username/ pass là 2 tham số thư viện passport nó trả về
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOneByUserName(username);
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.usersService.findOneByEmail(email);
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password);
       if (isValid === true) {

@@ -96,10 +96,9 @@ export class AuthController {
   // }
   async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
     const user = req.user;
-    console.log('req.user: ', req.user);
     const userRole = user.role as unknown as { _id: string; name: string };
     const roleData = await this.rolesService.findOne(userRole._id);
-
+    console.log('check user: ', user);
     const updatedUser = {
       ...user,
       role: {
