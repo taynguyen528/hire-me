@@ -9,6 +9,7 @@ import {
 } from 'src/permissions/schemas/permission.schemas';
 import { Role, RoleSchema } from 'src/roles/schemas/role.schemas';
 import { UsersService } from 'src/users/users.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -17,6 +18,10 @@ import { UsersService } from 'src/users/users.service';
       { name: Permission.name, schema: PermissionSchema },
       { name: Role.name, schema: RoleSchema },
     ]),
+    JwtModule.register({
+      secret: 'yourSecretKey',
+      signOptions: { expiresIn: '1d' },
+    }),
   ],
   controllers: [DatabasesController],
   providers: [DatabasesService, UsersService],

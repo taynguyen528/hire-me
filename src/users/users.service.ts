@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User as UserM, UserDocument } from './schemas/user.schema';
-import mongoose, { Model } from 'mongoose';
+import mongoose from 'mongoose';
 import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
@@ -11,10 +11,15 @@ import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
 import { USER_ROLE } from 'src/databases/sample';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schemas';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
+    private readonly jwtService: JwtService,
+    private configService: ConfigService,
+
     @InjectModel(UserM.name)
     private userModel: SoftDeleteModel<UserDocument>,
 
@@ -174,16 +179,21 @@ export class UsersService {
 
     // fetch user role
     const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-
     const hashPassword = this.getHashPassword(password);
-    const newRegister = await this.userModel.create({
+    const tokenCheckVerify = this.createTokenVerify(user.email);
+
+    const newUser = await this.userModel.create({
       name,
       email,
       password: hashPassword,
       role: userRole?._id,
+      isVerify: false,
+      tokenCheckVerify,
     });
 
-    return newRegister;
+    await this.sendVerificationEmail(newUser.email, tokenCheckVerify);
+
+    return newUser;
   }
 
   async createFromGoogle(
@@ -204,7 +214,7 @@ export class UsersService {
     const hashedPassword = hashSync(password, salt);
 
     const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-    // console.log(userRole);
+
     if (!userRole) {
       throw new BadRequestException('Role không tồn tại');
     }
@@ -219,6 +229,43 @@ export class UsersService {
     });
 
     return newUser;
+  }
+
+  private createTokenVerify(email: string) {
+    return this.jwtService.sign(
+      { email },
+      {
+        secret: this.configService.get<string>('JWT_VERIFY_SECRET'),
+        expiresIn: this.configService.get<string>('JWT_EXPIRE_1H'),
+      },
+    );
+  }
+
+  private async sendVerificationEmail(email: string, token: string) {
+    const verificationUrl = `http://localhost:5173/auth/verify?token=${token}`;
+    console.log(`Gửi email xác minh đến ${email}: ${verificationUrl}`);
+  }
+
+  async verifyAccount(token: string) {
+    try {
+      const decoded: any = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('JWT_VERIFY_SECRET'),
+      });
+      const user = await this.findOneByEmail(decoded.email);
+
+      if (!user) {
+        throw new BadRequestException('Người dùng không tồn tại');
+      }
+
+      user.isVerify = true;
+      await user.save();
+
+      return { message: 'Xác minh tài khoản thành công!' };
+    } catch (error) {
+      throw new BadRequestException(
+        'Token xác minh không hợp lệ hoặc đã hết hạn',
+      );
+    }
   }
 
   updateUserToken = async (refreshToken: string, _id: string) => {

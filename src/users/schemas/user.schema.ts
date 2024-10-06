@@ -65,6 +65,12 @@ export class User {
 
   @Prop()
   deletedAt: Date;
+
+  @Prop({ default: false })
+  isVerify: boolean;
+
+  @Prop({ type: String })
+  tokenCheckVerify: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
