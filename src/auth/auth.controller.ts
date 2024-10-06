@@ -12,7 +12,7 @@ import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { LocalAuthGuard } from './local-auth.guard';
 import { RegisterUserDto, UserLoginDto } from 'src/users/dto/create-user.dto';
 import { Request, Response } from 'express';
-import { IUser } from 'src/users/users.interface';
+import { IUser, Permission } from 'src/users/users.interface';
 import { RolesService } from 'src/roles/roles.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
@@ -81,37 +81,41 @@ export class AuthController {
   @Public()
   @Get('google')
   @UseGuards(GoogleAuthGuard)
-  async googleLogin() {
-    // Đây sẽ redirect đến Google
+  async googleLogin(@Req() req, @Res() res) {
+    return res.redirect('http://localhost:3000/auth/google/callback');
   }
 
   @Public()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  // async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
-  //   const user = await this.authService.login(req.user, res);
-  //   console.log('user google: ', user);
-  //   console.log('check req.user', req.user);
-  //   res.redirect(`http://localhost:5173?token=${user.access_token}`);
-  // }
   async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
     const user = req.user;
     const userRole = user.role as unknown as { _id: string; name: string };
     const roleData = await this.rolesService.findOne(userRole._id);
-    console.log('check user: ', user);
-    const updatedUser = {
-      ...user,
+
+    const { _id, name, email } = user._doc;
+
+    const permissions: Permission[] = (roleData.permissions || []).map(
+      (permission: any) => ({
+        _id: permission._id,
+        name: permission.name,
+        apiPath: permission.apiPath,
+        module: permission.module,
+      }),
+    );
+
+    const updatedUser: IUser = {
+      _id: _id.toString(),
+      name,
+      email,
       role: {
-        _id: userRole._id,
+        _id: userRole._id.toString(),
         name: roleData.name,
       },
-      permissions: roleData.permissions || [],
+      permissions,
     };
 
-    console.log('updatedUser: ', updatedUser);
-
     const responseUser = await this.authService.login(updatedUser, res);
-
     res.redirect(`http://localhost:5173?token=${responseUser.access_token}`);
   }
 }

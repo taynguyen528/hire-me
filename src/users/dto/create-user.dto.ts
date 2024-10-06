@@ -63,18 +63,6 @@ export class RegisterUserDto {
 
   @IsNotEmpty({ message: 'Password không được để trống!' })
   password: string;
-
-  @IsNotEmpty({ message: 'Birthday không được để trống!' })
-  @IsString()
-  birthday: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'Gender không được để trống!' })
-  gender: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'Address không được để trống!' })
-  address: string;
 }
 
 export class UserLoginDto {
