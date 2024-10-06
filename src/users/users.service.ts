@@ -13,11 +13,13 @@ import { USER_ROLE } from 'src/databases/sample';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schemas';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly jwtService: JwtService,
+    private mailService: MailService,
     private configService: ConfigService,
 
     @InjectModel(UserM.name)
@@ -169,7 +171,8 @@ export class UsersService {
 
   async register(user: RegisterUserDto) {
     const { name, email, password } = user;
-    // check email
+
+    // Kiểm tra email đã tồn tại
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
       throw new BadRequestException(
@@ -177,11 +180,12 @@ export class UsersService {
       );
     }
 
-    // fetch user role
+    // Lấy vai trò người dùng
     const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-    const hashPassword = this.getHashPassword(password);
-    const tokenCheckVerify = this.createTokenVerify(user.email);
+    const hashPassword = this.getHashPassword(password); // Hàm băm mật khẩu
+    const tokenCheckVerify = this.createTokenVerify(email); // Tạo token xác thực
 
+    // Tạo người dùng mới
     const newUser = await this.userModel.create({
       name,
       email,
@@ -191,7 +195,14 @@ export class UsersService {
       tokenCheckVerify,
     });
 
-    await this.sendVerificationEmail(newUser.email, tokenCheckVerify);
+    const verificationLink = `http://http://localhost:5173/verify-email?token=${tokenCheckVerify}`; // Đảm bảo bạn tạo liên kết xác thực đúng
+
+    await this.mailService.sendEmail(
+      newUser.email,
+      'Xác nhận tài khoản của bạn',
+      'verify-email.hbs',
+      { verification_link: verificationLink, name: newUser.name },
+    );
 
     return newUser;
   }
@@ -241,11 +252,6 @@ export class UsersService {
     );
   }
 
-  private async sendVerificationEmail(email: string, token: string) {
-    const verificationUrl = `http://localhost:5173/auth/verify?token=${token}`;
-    console.log(`Gửi email xác minh đến ${email}: ${verificationUrl}`);
-  }
-
   async verifyAccount(token: string) {
     try {
       const decoded: any = this.jwtService.verify(token, {
@@ -258,9 +264,8 @@ export class UsersService {
       }
 
       user.isVerify = true;
+      user.tokenCheckVerify = '';
       await user.save();
-
-      return { message: 'Xác minh tài khoản thành công!' };
     } catch (error) {
       throw new BadRequestException(
         'Token xác minh không hợp lệ hoặc đã hết hạn',

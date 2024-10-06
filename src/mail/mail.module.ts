@@ -42,5 +42,6 @@ import { Job, JobSchema } from 'src/jobs/schemas/job.schemas';
   ],
   controllers: [MailController],
   providers: [MailService],
+  exports: [MailService],
 })
 export class MailModule {}
