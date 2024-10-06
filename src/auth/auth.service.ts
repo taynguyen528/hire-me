@@ -18,10 +18,9 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private rolesService: RolesService,
-
-    @InjectModel(User.name)
-    private userModel: SoftDeleteModel<UserDocument>,
-  ) {}
+  ) // @InjectModel(User.name)
+  // private userModel: SoftDeleteModel<UserDocument>,
+  {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findOneByEmail(email);
@@ -42,6 +41,14 @@ export class AuthService {
     return null;
   }
 
+  async register(user: RegisterUserDto) {
+    let newUser = await this.usersService.register(user);
+    return {
+      _id: newUser?._id,
+      createdAt: newUser?.createdAt,
+    };
+  }
+
   async login(user: IUser, response: Response) {
     const { _id, name, email, role, permissions } = user;
 
@@ -55,14 +62,13 @@ export class AuthService {
     };
     const refresh_token = this.createRefreshToken(payload);
 
-    //update user with refresh token
+    // update user with refresh token
     await this.usersService.updateUserToken(refresh_token, _id);
 
-    //set refresh_token as cookie
+    // set refresh_token as cookie
     response.cookie('refresh_token', refresh_token, {
       httpOnly: true,
       maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
-      //httpOnly set = true -> cookie chỉ đọc phía server, không thể dùng js để lấy cookie phía client -> tăng tính bảo mật cookie
     });
 
     return {
@@ -74,14 +80,6 @@ export class AuthService {
         role,
         permissions,
       },
-    };
-  }
-
-  async register(user: RegisterUserDto) {
-    let newUser = await this.usersService.register(user);
-    return {
-      _id: newUser?._id,
-      createdAt: newUser?.createdAt,
     };
   }
 
@@ -101,9 +99,7 @@ export class AuthService {
       });
 
       const user = await this.usersService.findUserByToken(refreshToken);
-      // console.log(user);
       if (user) {
-        //update refresh_token
         const { _id, name, email, role } = user;
         const payload = {
           sub: 'token refresh',
@@ -115,20 +111,19 @@ export class AuthService {
         };
         const refresh_token = this.createRefreshToken(payload);
 
-        //update user with refresh token
+        // update user with refresh token
         await this.usersService.updateUserToken(refresh_token, _id.toString());
 
-        //fetch user role
+        // fetch user role
         const userRole = user.role as unknown as { _id: string; name: string };
         const temp = await this.rolesService.findOne(userRole._id);
 
-        //set refresh_token as cookie
+        // set refresh_token as cookie
         response.clearCookie('refresh_token');
 
         response.cookie('refresh_token', refresh_token, {
           httpOnly: true,
           maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
-          //httpOnly set = true -> cookie chỉ đọc phía server, không thể dùng js để lấy cookie phía client -> tăng tính bảo mật cookie
         });
 
         return {

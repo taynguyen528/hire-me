@@ -6,6 +6,7 @@ import {
   Res,
   Req,
   Get,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
@@ -18,11 +19,13 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './google-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('auth') //  route /
 @ApiTags('auth')
 export class AuthController {
   constructor(
+    private usersService: UsersService,
     private authService: AuthService,
     private rolesService: RolesService,
   ) {}
@@ -82,7 +85,7 @@ export class AuthController {
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   async googleLogin(@Req() req, @Res() res) {
-    return res.redirect('http://localhost:3000/auth/google/callback');
+    return res.redirect('http://localhost:5173/auth/google/callback');
   }
 
   @Public()
@@ -117,5 +120,10 @@ export class AuthController {
 
     const responseUser = await this.authService.login(updatedUser, res);
     res.redirect(`http://localhost:5173?token=${responseUser.access_token}`);
+  }
+
+  @Get('verify')
+  async verify(@Query('token') token: string) {
+    return await this.usersService.verifyAccount(token);
   }
 }
