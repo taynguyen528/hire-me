@@ -29,7 +29,7 @@ export class UsersService {
   };
 
   async create(createUserDto: CreateUserDto, @User() user: IUser) {
-    const { name, email, password, age, gender, address, role, company } =
+    const { name, email, password, birthday, gender, address, role, company } =
       createUserDto;
 
     // check email
@@ -46,7 +46,7 @@ export class UsersService {
       name,
       email,
       password: hashPassword,
-      age,
+      birthday,
       gender,
       address,
       role,
@@ -106,10 +106,10 @@ export class UsersService {
       }); //exclude >< include
   }
 
-  findOneByUserName(username: string) {
+  findOneByEmail(email: string) {
     return this.userModel
       .findOne({
-        email: username,
+        email,
       })
       .populate({
         path: 'role',
@@ -163,7 +163,7 @@ export class UsersService {
   }
 
   async register(user: RegisterUserDto) {
-    const { name, email, password, age, gender, address } = user;
+    const { name, email, password, birthday, gender, address } = user;
     // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
@@ -174,18 +174,54 @@ export class UsersService {
 
     // fetch user role
     const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-
+    console.log('userRole: ', userRole);
     const hashPassword = this.getHashPassword(password);
     let newRegister = await this.userModel.create({
       name,
       email,
       password: hashPassword,
-      age,
+      birthday,
       gender,
       address,
       role: userRole?._id,
     });
+    // console.log('newRegister(user service) : ', newRegister);
     return newRegister;
+  }
+
+  async createFromGoogle(
+    email: string,
+    name: string,
+    gender: string,
+    picture: string,
+  ) {
+    const isExist = await this.userModel.findOne({ email });
+    if (isExist) {
+      throw new BadRequestException(
+        `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác!`,
+      );
+    }
+
+    const password = '123456';
+    const salt = genSaltSync(10);
+    const hashedPassword = hashSync(password, salt);
+
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE });
+    // console.log(userRole);
+    if (!userRole) {
+      throw new BadRequestException('Role không tồn tại');
+    }
+
+    const newUser = await this.userModel.create({
+      name,
+      email,
+      password: hashedPassword,
+      gender,
+      picture,
+      role: userRole?._id,
+    });
+
+    return newUser;
   }
 
   updateUserToken = async (refreshToken: string, _id: string) => {

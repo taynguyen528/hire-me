@@ -15,6 +15,7 @@ module.exports = {
     node: true,
     jest: true,
   },
+  "endOfLine": "lf",
   ignorePatterns: ['.eslintrc.js'],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',

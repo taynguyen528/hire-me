@@ -7,6 +7,9 @@ import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { Response } from 'express';
 import { RolesService } from 'src/roles/roles.service';
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -15,11 +18,13 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private rolesService: RolesService,
+
+    @InjectModel(User.name)
+    private userModel: SoftDeleteModel<UserDocument>,
   ) {}
 
-  //username/ pass là 2 tham số thư viện passport nó trả về
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOneByUserName(username);
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.usersService.findOneByEmail(email);
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password);
       if (isValid === true) {
@@ -34,12 +39,12 @@ export class AuthService {
         return objUser;
       }
     }
-
     return null;
   }
 
   async login(user: IUser, response: Response) {
     const { _id, name, email, role, permissions } = user;
+    // console.log('check role: ', role);
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -60,6 +65,17 @@ export class AuthService {
       //httpOnly set = true -> cookie chỉ đọc phía server, không thể dùng js để lấy cookie phía client -> tăng tính bảo mật cookie
     });
 
+    // console.log({
+    //   access_token: this.jwtService.sign(payload),
+    //   user: {
+    //     _id,
+    //     name,
+    //     email,
+    //     role,
+    //     permissions,
+    //   },
+    // });
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -74,7 +90,7 @@ export class AuthService {
 
   async register(user: RegisterUserDto) {
     let newUser = await this.usersService.register(user);
-    // console.log('check new User: ', newUser);
+    // console.log('check new User (auth service): ', newUser);
     return {
       _id: newUser?._id,
       createdAt: newUser?.createdAt,
