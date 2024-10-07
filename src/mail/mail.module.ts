@@ -11,6 +11,7 @@ import {
   SubscriberSchema,
 } from 'src/subscribers/schemas/subscriber.schemas';
 import { Job, JobSchema } from 'src/jobs/schemas/job.schemas';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { Job, JobSchema } from 'src/jobs/schemas/job.schemas';
             strict: true,
           },
         },
-        preview: configService.get<boolean>('EMAIL_PREVIEW'),
+        // preview: configService.get<boolean>('EMAIL_PREVIEW'),
       }),
       inject: [ConfigService],
     }),

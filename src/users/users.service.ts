@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User as UserM, UserDocument } from './schemas/user.schema';
@@ -13,6 +18,7 @@ import { USER_ROLE } from 'src/databases/sample';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schemas';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { AuthService } from 'src/auth/auth.service';
 import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
@@ -21,6 +27,8 @@ export class UsersService {
     private readonly jwtService: JwtService,
     private mailService: MailService,
     private configService: ConfigService,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
 
     @InjectModel(UserM.name)
     private userModel: SoftDeleteModel<UserDocument>,
@@ -171,8 +179,7 @@ export class UsersService {
 
   async register(user: RegisterUserDto) {
     const { name, email, password } = user;
-
-    // Kiểm tra email đã tồn tại
+    // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
       throw new BadRequestException(
@@ -180,12 +187,13 @@ export class UsersService {
       );
     }
 
-    // Lấy vai trò người dùng
+    // fetch user role
     const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-    const hashPassword = this.getHashPassword(password); // Hàm băm mật khẩu
-    const tokenCheckVerify = this.createTokenVerify(email); // Tạo token xác thực
+    const hashPassword = this.getHashPassword(password);
+    const tokenCheckVerify = await this.authService.createTokenVerify(
+      user.email,
+    );
 
-    // Tạo người dùng mới
     const newUser = await this.userModel.create({
       name,
       email,
@@ -195,11 +203,12 @@ export class UsersService {
       tokenCheckVerify,
     });
 
-    const verificationLink = `http://http://localhost:5173/verify-email?token=${tokenCheckVerify}`; // Đảm bảo bạn tạo liên kết xác thực đúng
+    const verificationLink = `http://http://localhost:5173/verify-email?token=${tokenCheckVerify}`;
+    // console.log('tokenCheckVerify: ', tokenCheckVerify);
 
     await this.mailService.sendEmail(
       newUser.email,
-      'Xác nhận tài khoản của bạn',
+      'Verify your account',
       'verify-email.hbs',
       { verification_link: verificationLink, name: newUser.name },
     );
@@ -230,47 +239,20 @@ export class UsersService {
       throw new BadRequestException('Role không tồn tại');
     }
 
+    const tokenCheckVerify = await this.authService.createTokenVerify(email);
+
     const newUser = await this.userModel.create({
       name,
       email,
       password: hashedPassword,
       gender,
       picture,
+      isVerify: false,
+      tokenCheckVerify,
       role: userRole?._id,
     });
 
     return newUser;
-  }
-
-  private createTokenVerify(email: string) {
-    return this.jwtService.sign(
-      { email },
-      {
-        secret: this.configService.get<string>('JWT_VERIFY_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_EXPIRE_1H'),
-      },
-    );
-  }
-
-  async verifyAccount(token: string) {
-    try {
-      const decoded: any = this.jwtService.verify(token, {
-        secret: this.configService.get<string>('JWT_VERIFY_SECRET'),
-      });
-      const user = await this.findOneByEmail(decoded.email);
-
-      if (!user) {
-        throw new BadRequestException('Người dùng không tồn tại');
-      }
-
-      user.isVerify = true;
-      user.tokenCheckVerify = '';
-      await user.save();
-    } catch (error) {
-      throw new BadRequestException(
-        'Token xác minh không hợp lệ hoặc đã hết hạn',
-      );
-    }
   }
 
   updateUserToken = async (refreshToken: string, _id: string) => {

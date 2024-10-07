@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { IUser } from 'src/users/users.interface';
@@ -10,17 +15,18 @@ import { RolesService } from 'src/roles/roles.service';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
+    private mailService: MailService,
     private configService: ConfigService,
-    private rolesService: RolesService,
-  ) // @InjectModel(User.name)
-  // private userModel: SoftDeleteModel<UserDocument>,
-  {}
+    private rolesService: RolesService, // @InjectModel(User.name) // private userModel: SoftDeleteModel<UserDocument>,
+  ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findOneByEmail(email);
@@ -147,6 +153,61 @@ export class AuthService {
       );
     }
   };
+
+  async createTokenVerify(email: string) {
+    return this.jwtService.sign(
+      { email },
+      {
+        secret: this.configService.get<string>('JWT_VERIFY_SECRET'),
+        expiresIn: this.configService.get<string>('JWT_EXPIRE_1H'),
+      },
+    );
+  }
+
+  async verifyAccount(token: string) {
+    try {
+      const decoded: any = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('JWT_VERIFY_SECRET'),
+      });
+      const user = await this.usersService.findOneByEmail(decoded.email);
+
+      if (!user) {
+        throw new BadRequestException('User not found.');
+      }
+
+      user.isVerify = true;
+      user.tokenCheckVerify = '';
+      await user.save();
+    } catch (error) {
+      throw new BadRequestException(
+        'Token xác minh không hợp lệ hoặc đã hết hạn',
+      );
+    }
+  }
+
+  async resendEmailVerifyAccount(email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
+
+    if (user.isVerify === true && user.tokenCheckVerify === '') {
+      throw new BadRequestException('Account has been verified');
+    }
+
+    const verifyToken = await this.createTokenVerify(email);
+    user.tokenCheckVerify = verifyToken;
+    await user.save();
+
+    const verificationLink = `http://http://localhost:5173/verify-email?token=${verifyToken}`;
+    await this.mailService.sendEmail(
+      user.email,
+      'Resend email verify account',
+      'verify-email.hbs',
+      { verification_link: verificationLink, name: user.name },
+    );
+  }
 
   logout = async (response: Response, user: IUser) => {
     await this.usersService.updateUserToken('', user._id);
