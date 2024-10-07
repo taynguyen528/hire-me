@@ -12,5 +12,6 @@ import { Subscriber, SubscriberSchema } from './schemas/subscriber.schemas';
   ],
   controllers: [SubscribersController],
   providers: [SubscribersService],
+  exports: [MongooseModule],
 })
 export class SubscribersModule {}

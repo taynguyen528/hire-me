@@ -5,6 +5,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { Role, RoleSchema } from 'src/roles/schemas/role.schemas';
 import { JwtModule } from '@nestjs/jwt';
+import { MailService } from 'src/mail/mail.service';
+import { MailModule } from 'src/mail/mail.module';
+import { SubscribersModule } from 'src/subscribers/subscribers.module';
+import { JobsModule } from 'src/jobs/jobs.module';
 
 @Module({
   imports: [
@@ -13,12 +17,14 @@ import { JwtModule } from '@nestjs/jwt';
       { name: Role.name, schema: RoleSchema },
     ]),
     JwtModule.register({
-      secret: 'yourSecretKey',
+      secret: 'backend-recruitment',
       signOptions: { expiresIn: '1d' },
     }),
+    SubscribersModule,
+    JobsModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, MailService],
   exports: [UsersService, MongooseModule],
 })
 export class UsersModule {}

@@ -122,8 +122,10 @@ export class AuthController {
     res.redirect(`http://localhost:5173?token=${responseUser.access_token}`);
   }
 
+  @Public()
+  @ResponseMessage('Xác minh tài khoản thành công.')
   @Get('verify')
-  async verify(@Query('token') token: string) {
+  async verify(@Query('tokenCheckVerify') token: string) {
     return await this.usersService.verifyAccount(token);
   }
 }
