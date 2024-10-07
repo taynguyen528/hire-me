@@ -15,24 +15,21 @@
       600px; margin: 0 auto; background-color: #ffffff; padding: 25px;
       border-radius: 10px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
       transition: transform 0.3s ease; } .email-content:hover { transform:
-      scale(1.02); } .header { background-color: #007bff; /* Updated to the new
-      blue color */ color: #ffffff; padding: 20px; text-align: center;
-      border-top-left-radius: 10px; border-top-right-radius: 10px; } .header h1
-      { margin: 0; font-size: 24px; font-weight: 600; } .content { padding:
-      20px; font-size: 16px; line-height: 1.8; color: #555555; } .content p {
-      margin: 15px 0; } .content a { color: #007bff; /* Updated link color */
-      text-decoration: none; font-weight: 600; transition: color 0.3s ease; }
-      .content a:hover { color: #0056b3; /* Slightly darker blue on hover */ }
-      .btn { display: block; width: 220px; margin: 30px auto; padding: 12px;
-      background-color: #007bff; /* Updated button color */ color: white
-      !important; /* Ensure button text is always white */ text-align: center;
+      scale(1.02); } .header { background-color: #007bff; color: #ffffff;
+      padding: 20px; text-align: center; border-top-left-radius: 10px;
+      border-top-right-radius: 10px; } .header h1 { margin: 0; font-size: 24px;
+      font-weight: 600; } .content { padding: 20px; font-size: 16px;
+      line-height: 1.8; color: #555555; } .content p { margin: 15px 0; }
+      .content a { color: #007bff; text-decoration: none; font-weight: 600;
+      transition: color 0.3s ease; } .content a:hover { color: #0056b3; } .btn {
+      display: block; width: 220px; margin: 30px auto; padding: 12px;
+      background-color: #007bff; color: white !important; text-align: center;
       text-decoration: none; border-radius: 8px; font-size: 18px; font-weight:
-      600; box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); /* Shadow with blue
-      tint */ transition: background-color 0.3s ease, box-shadow 0.3s ease; }
-      .btn:hover { background-color: #0056b3; /* Darker blue on hover */
-      box-shadow: 0 5px 20px rgba(0, 123, 255, 0.5); /* Stronger shadow on hover
-      */ } .footer { text-align: center; padding: 10px; font-size: 12px; color:
-      #888888; margin-top: 20px; } @media (max-width: 768px) { .email-conte snt {
+      600; box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); transition:
+      background-color 0.3s ease, box-shadow 0.3s ease; } .btn:hover {
+      background-color: #0056b3; box-shadow: 0 5px 20px rgba(0, 123, 255, 0.5);
+      } .footer { text-align: center; padding: 10px; font-size: 12px; color:
+      #888888; margin-top: 20px; } @media (max-width: 768px) { .email-content {
       padding: 20px; } .btn { width: 100%; } }
     </style>
   </head>
@@ -43,13 +40,14 @@
           <h1>Verify Your Email</h1>
         </div>
         <div class='content'>
-          <p>Dear [User],</p>
+          <p>Dear {{name}},</p>
           <p>Thank you for registering! Please click the button below to verify
             your email address.</p>
-          <a href='[verification_link]' class='btn'>Verify Email</a>
+          <a href='{{verification_link}}' class='btn'>Verify Email</a>
           <p>If the button above doesn't work, copy and paste the following link
             into your browser:</p>
-          <p><a href='[verification_link]'>[verification_link]</a></p>
+          
+          <p><a href='{{verification_link}}'>{{{verification_link}}}</a></p>
           <p>If you didn't create an account with us, please ignore this email.</p>
         </div>
         <div class='footer'>

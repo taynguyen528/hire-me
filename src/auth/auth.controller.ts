@@ -123,9 +123,16 @@ export class AuthController {
   }
 
   @Public()
-  @ResponseMessage('Xác minh tài khoản thành công.')
-  @Get('verify')
+  @ResponseMessage('Account verified successfully.')
+  @Get('verify-account')
   async verify(@Query('tokenCheckVerify') token: string) {
-    return await this.usersService.verifyAccount(token);
+    return await this.authService.verifyAccount(token);
+  }
+
+  @Public()
+  @ResponseMessage('Resend email verify account successfully.')
+  @Get('resend-verify-account')
+  async resendVerifyEmail(@Body('email') email: string) {
+    return await this.authService.resendEmailVerifyAccount(email);
   }
 }
