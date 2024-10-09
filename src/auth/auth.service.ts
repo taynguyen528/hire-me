@@ -12,10 +12,8 @@ import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { Response } from 'express';
 import { RolesService } from 'src/roles/roles.service';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { MailService } from 'src/mail/mail.service';
+import { ForgotPasswordDto } from 'src/users/dto/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -164,6 +162,16 @@ export class AuthService {
     );
   }
 
+  async createTokenResetPassword(email: string) {
+    return this.jwtService.sign(
+      { email },
+      {
+        secret: this.configService.get<string>('JWT_FORGOT_PASSWORD_SECRET'),
+        expiresIn: this.configService.get<string>('JWT_EXPIRE_1H'),
+      },
+    );
+  }
+
   async verifyAccount(token: string) {
     try {
       const decoded: any = this.jwtService.verify(token, {
@@ -200,7 +208,9 @@ export class AuthService {
     user.tokenCheckVerify = verifyToken;
     await user.save();
 
-    const verificationLink = `http://http://localhost:5173/verify-email?token=${verifyToken}`;
+    const verificationLink = `http://localhost:${this.configService.get<string>(
+      'PORT_CLIENT',
+    )}/verify-email?token=${verifyToken}`;
     await this.mailService.sendEmail(
       user.email,
       'Resend email verify account',

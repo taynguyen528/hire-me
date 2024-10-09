@@ -71,6 +71,9 @@ export class User {
 
   @Prop({ type: String })
   tokenCheckVerify: string;
+
+  @Prop()
+  resetPasswordToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

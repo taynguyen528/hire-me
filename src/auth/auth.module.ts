@@ -10,7 +10,6 @@ import ms from 'ms';
 import { AuthController } from './auth.controller';
 import { RolesModule } from 'src/roles/roles.module';
 import { GoogleStrategy } from './passport/google.strategy';
-import { MailService } from 'src/mail/mail.service';
 import { MailModule } from 'src/mail/mail.module';
 
 @Module({
