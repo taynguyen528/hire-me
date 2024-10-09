@@ -20,6 +20,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from 'src/auth/auth.service';
 import { MailService } from 'src/mail/mail.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -57,7 +58,7 @@ export class UsersService {
 
     const hashPassword = this.getHashPassword(password);
 
-    let newUser = await this.userModel.create({
+    const newUser = await this.userModel.create({
       name,
       email,
       password: hashPassword,
@@ -203,9 +204,9 @@ export class UsersService {
       tokenCheckVerify,
     });
 
-    const verificationLink = `http://http://localhost:5173/verify-email?token=${tokenCheckVerify}`;
-    // console.log('tokenCheckVerify: ', tokenCheckVerify);
-
+    const verificationLink = `http://localhost:${this.configService.get<string>(
+      'PORT_CLIENT',
+    )}/verify-email?token=${tokenCheckVerify}`;
     await this.mailService.sendEmail(
       newUser.email,
       'Verify your account',
@@ -264,4 +265,56 @@ export class UsersService {
       .findOne({ refreshToken })
       .populate({ path: 'role', select: { name: 1 } });
   };
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const { email } = forgotPasswordDto;
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new BadRequestException('Email không tồn tại trong hệ thống.');
+    }
+
+    const resetPasswordToken = await this.authService.createTokenResetPassword(
+      email,
+    );
+
+    await this.userModel.updateOne(
+      {
+        _id: user._id,
+      },
+      { resetPasswordToken },
+    );
+
+    const resetLink = `http://localhost:${this.configService.get<string>(
+      'PORT_CLIENT',
+    )}/reset-password?token=${resetPasswordToken}`;
+
+    await this.mailService.sendEmail(
+      user.email,
+      'Reset password',
+      'reset-password.hbs',
+      { reset_link: resetLink, name: user.name },
+    );
+  }
+
+  async resetPassword(tokenResetPassword: string, newPassword: string) {
+    let payload: { email: string; iat: string; exp: string };
+    try {
+      payload = this.jwtService.verify(tokenResetPassword, {
+        secret: this.configService.get<string>('JWT_FORGOT_PASSWORD_SECRET'),
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        'Token không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra lại.',
+      );
+    }
+    const email = payload.email;
+    const user = await this.userModel.findOne({ email });
+
+    const hashedPassword = await this.getHashPassword(newPassword);
+    user.password = hashedPassword;
+    user.resetPasswordToken = '';
+    await user.save();
+
+    return { message: 'Mật khẩu đã được đặt lại thành công.' };
+  }
 }

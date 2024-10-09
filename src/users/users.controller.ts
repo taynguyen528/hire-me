@@ -14,6 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from './users.interface';
 import { ApiTags } from '@nestjs/swagger';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -61,5 +62,22 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.usersService.remove(id, user);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @ResponseMessage('Password reset request successful')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.usersService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @ResponseMessage('Reset password successful')
+  async resetPassword(
+    @Query('token') tokenResetPassword: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.usersService.resetPassword(tokenResetPassword, newPassword);
   }
 }

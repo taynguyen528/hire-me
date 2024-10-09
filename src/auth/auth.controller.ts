@@ -20,6 +20,7 @@ import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './google-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from 'src/users/users.service';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth') //  route /
 @ApiTags('auth')
@@ -28,6 +29,7 @@ export class AuthController {
     private usersService: UsersService,
     private authService: AuthService,
     private rolesService: RolesService,
+    private configService: ConfigService,
   ) {}
 
   @Public() // tag @Public để không cần dùng jwt
@@ -85,7 +87,11 @@ export class AuthController {
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   async googleLogin(@Req() req, @Res() res) {
-    return res.redirect('http://localhost:5173/auth/google/callback');
+    return res.redirect(
+      `http://localhost:${this.configService.get<string>(
+        'PORT_CLIENT',
+      )}/auth/google/callback`,
+    );
   }
 
   @Public()
@@ -119,7 +125,11 @@ export class AuthController {
     };
 
     const responseUser = await this.authService.login(updatedUser, res);
-    res.redirect(`http://localhost:5173?token=${responseUser.access_token}`);
+    res.redirect(
+      `http://localhost:${this.configService.get<string>(
+        'PORT_CLIENT',
+      )}?token=${responseUser.access_token}`,
+    );
   }
 
   @Public()
