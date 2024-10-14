@@ -142,7 +142,7 @@ export class AuthController {
   @Public()
   @ResponseMessage('Resend email verify account successfully.')
   @Get('resend-verify-account')
-  async resendVerifyEmail(@Body('email') email: string) {
+  async resendVerifyEmail(@Query('email') email: string) {
     return await this.authService.resendEmailVerifyAccount(email);
   }
 }
