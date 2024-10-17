@@ -134,15 +134,15 @@ export class AuthController {
 
   @Public()
   @ResponseMessage('Account verified successfully.')
-  @Get('verify-account')
+  @Get('verify-email')
   async verify(@Query('tokenCheckVerify') token: string) {
-    return await this.authService.verifyAccount(token);
+    return await this.authService.verifyEmail(token);
   }
 
   @Public()
-  @ResponseMessage('Resend email verify account successfully.')
-  @Get('resend-verify-account')
+  @ResponseMessage('Resend email verify email successfully.')
+  @Get('resend-verify-email')
   async resendVerifyEmail(@Query('email') email: string) {
-    return await this.authService.resendEmailVerifyAccount(email);
+    return await this.authService.resendEmailVerifyEmail(email);
   }
 }

@@ -29,12 +29,19 @@ export class JobsController {
   @Get()
   @Public()
   @ResponseMessage('Fetch jobs with pagination')
-  findAll(
+  findAllWithPaginate(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
     @Query() qs: string,
   ) {
-    return this.jobsService.findAll(+currentPage, +limit, qs);
+    return this.jobsService.findAllWithPaginate(+currentPage, +limit, qs);
+  }
+
+  @Get('/getAllJobs')
+  @Public()
+  @ResponseMessage('Fetch all jobs')
+  findAll() {
+    return this.jobsService.findAll();
   }
 
   @Get(':id')
