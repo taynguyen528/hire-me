@@ -172,7 +172,7 @@ export class AuthService {
     );
   }
 
-  async verifyAccount(token: string) {
+  async verifyEmail(token: string) {
     try {
       const decoded: any = this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_VERIFY_SECRET'),
@@ -193,7 +193,7 @@ export class AuthService {
     }
   }
 
-  async resendEmailVerifyAccount(email: string) {
+  async resendEmailVerifyEmail(email: string) {
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user) {
@@ -210,10 +210,10 @@ export class AuthService {
 
     const verificationLink = `http://localhost:${this.configService.get<string>(
       'PORT_CLIENT',
-    )}/verify-email?token=${verifyToken}`;
+    )}/verify-email?tokenCheckVerify=${verifyToken}`;
     await this.mailService.sendEmail(
       user.email,
-      'Resend email verify account',
+      'Resend email verify email',
       'verify-email.hbs',
       { verification_link: verificationLink, name: user.name },
     );

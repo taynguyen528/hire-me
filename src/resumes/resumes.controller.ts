@@ -9,8 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ResumesService } from './resumes.service';
-import { CreateResumeDto, CreateUserCvDto } from './dto/create-resume.dto';
-import { UpdateResumeDto } from './dto/update-resume.dto';
+import { CreateUserCvDto } from './dto/create-resume.dto';
 import { ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { ApiTags } from '@nestjs/swagger';
@@ -27,7 +26,7 @@ export class ResumesController {
   }
 
   @Get()
-  @ResponseMessage('Fetch al resumes with paginate')
+  @ResponseMessage('Fetch all resumes with paginate')
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,

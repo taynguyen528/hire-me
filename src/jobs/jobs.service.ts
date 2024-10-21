@@ -53,7 +53,7 @@ export class JobsService {
     };
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
+  async findAllWithPaginate(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
@@ -81,6 +81,11 @@ export class JobsService {
       },
       result, //kết quả query
     };
+  }
+
+  async findAll() {
+    const jobs = await this.jobModel.find().exec();
+    return jobs;
   }
 
   async findOne(id: string) {
