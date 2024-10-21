@@ -125,11 +125,11 @@ export class AuthController {
     };
 
     const responseUser = await this.authService.login(updatedUser, res);
-    res.redirect(
-      `http://localhost:${this.configService.get<string>(
-        'PORT_CLIENT',
-      )}?token=${responseUser.access_token}`,
-    );
+
+    const clientPort = this.configService.get<string>('PORT_CLIENT');
+    const redirectUrl = `http://localhost:${clientPort}?token=${responseUser.access_token}&isLogin=true`;
+
+    res.redirect(redirectUrl);
   }
 
   @Public()
