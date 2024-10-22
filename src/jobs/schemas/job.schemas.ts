@@ -16,6 +16,7 @@ export class Job {
     _id: mongoose.Schema.Types.ObjectId;
     name: string;
     logo: string;
+    scale: string;
   };
 
   @Prop()
@@ -32,6 +33,26 @@ export class Job {
 
   @Prop()
   description: string;
+
+  @Prop()
+  gender: string;
+
+  @Prop({
+    type: [String],
+    enum: [
+      'Full-time',
+      'Part-time',
+      'Remote',
+      'Hybrid',
+      'Freelance',
+      'Contract-based',
+      'On-site',
+    ],
+    required: true,
+  })
+  workForm: string[];
+
+  
 
   @Prop()
   startDate: Date;
