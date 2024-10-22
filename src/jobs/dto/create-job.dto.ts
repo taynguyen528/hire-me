@@ -4,9 +4,11 @@ import {
   IsArray,
   IsBoolean,
   IsDate,
+  IsIn,
   IsNotEmpty,
   IsNotEmptyObject,
   IsObject,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -21,6 +23,9 @@ class Company {
 
   @IsNotEmpty()
   logo: string;
+
+  @IsNotEmpty()
+  scale: string;
 }
 
 export class CreateJobDto {
@@ -31,9 +36,9 @@ export class CreateJobDto {
   @IsArray({ message: 'Skills phải có dạng array' })
   @IsString({ each: true, message: 'Skill phải là string' })
   @ArrayMinSize(1)
-  skills: string;
+  skills: string[];
 
-  //validate object => dùng package class-transformer
+  // Validate object => dùng package class-transformer
   @IsNotEmptyObject()
   @IsObject()
   @ValidateNested()
@@ -55,17 +60,42 @@ export class CreateJobDto {
   @IsNotEmpty({ message: 'Description không được để trống' })
   description: string;
 
+  @IsNotEmpty({ message: 'Work Form không được để trống' })
+  @IsArray({ message: 'Work Form phải có dạng array' })
+  @IsString({ each: true, message: 'Mỗi Work Form phải là string' })
+  @IsIn(
+    [
+      'Full-time',
+      'Part-time',
+      'Remote',
+      'Hybrid',
+      'Freelance',
+      'Contract-based',
+      'On-site',
+    ],
+    {
+      each: true,
+      message:
+        'Work Form phải thuộc các giá trị: Full-time, Part-time, Remote, Hybrid, Freelance, Contract-based, On-site',
+    },
+  )
+  workForm: string[];
+
+  @IsOptional()
+  @IsString({ message: 'Gender phải là chuỗi' })
+  gender?: string;
+
   @IsNotEmpty({ message: 'StartDate không được để trống' })
   @Transform(({ value }) => new Date(value))
-  @IsDate({ message: 'startDate phải có định dạng là Date' })
+  @IsDate({ message: 'StartDate phải có định dạng là Date' })
   startDate: Date;
 
   @IsNotEmpty({ message: 'EndDate không được để trống' })
   @Transform(({ value }) => new Date(value))
-  @IsDate({ message: 'startDate phải có định dạng là Date' })
+  @IsDate({ message: 'EndDate phải có định dạng là Date' })
   endDate: Date;
 
   @IsNotEmpty({ message: 'isActive không được để trống' })
   @IsBoolean({ message: 'isActive phải có định dạng là boolean' })
-  isActive: Date;
+  isActive: boolean;
 }

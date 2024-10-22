@@ -13,4 +13,7 @@ export class CreateCompanyDto {
 
   @IsNotEmpty({ message: 'Logo không được để trống' })
   logo: string;
+
+  @IsNotEmpty({ message: 'Scale không được để trống' })
+  scale: string;
 }
