@@ -32,6 +32,9 @@ export class Job {
   level: string;
 
   @Prop()
+  experience: string;
+
+  @Prop()
   description: string;
 
   @Prop()
@@ -52,7 +55,8 @@ export class Job {
   })
   workForm: string[];
 
-  
+  @Prop({ type: Number, default: 0 })
+  appliedCandidates: number;
 
   @Prop()
   startDate: Date;

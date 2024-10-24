@@ -66,4 +66,11 @@ export class JobsController {
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.jobsService.remove(id, user);
   }
+
+  @Get('/company/:companyId')
+  @Public()
+  @ResponseMessage('Fetch all jobs by company ID')
+  findJobsByCompany(@Param('companyId') companyId: string) {
+    return this.jobsService.findJobsByCompany(companyId);
+  }
 }
