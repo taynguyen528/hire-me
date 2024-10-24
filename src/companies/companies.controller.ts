@@ -39,6 +39,7 @@ export class CompaniesController {
 
   @Get(':id')
   @Public()
+  @ResponseMessage('Get info company')
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(id);
   }

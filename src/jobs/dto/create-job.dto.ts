@@ -7,9 +7,11 @@ import {
   IsIn,
   IsNotEmpty,
   IsNotEmptyObject,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import mongoose from 'mongoose';
@@ -57,6 +59,9 @@ export class CreateJobDto {
   @IsNotEmpty({ message: 'Level không được để trống' })
   level: string;
 
+  @IsNotEmpty({ message: 'Experience không được để trống' })
+  experience: string;
+
   @IsNotEmpty({ message: 'Description không được để trống' })
   description: string;
 
@@ -98,4 +103,9 @@ export class CreateJobDto {
   @IsNotEmpty({ message: 'isActive không được để trống' })
   @IsBoolean({ message: 'isActive phải có định dạng là boolean' })
   isActive: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0, { message: 'Số người ứng tuyển không được nhỏ hơn 0' })
+  appliedCandidates?: number;
 }

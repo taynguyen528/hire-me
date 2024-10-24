@@ -29,6 +29,8 @@ export class JobsService {
       isActive,
       location,
       gender,
+      appliedCandidates,
+      experience,
     } = createJobDto;
 
     let newJob = await this.jobModel.create({
@@ -49,6 +51,8 @@ export class JobsService {
         _id: user._id,
         email: user.email,
       },
+      appliedCandidates,
+      experience,
     });
 
     return {
@@ -126,5 +130,14 @@ export class JobsService {
     return this.jobModel.softDelete({
       _id: id,
     });
+  }
+
+  async findJobsByCompany(companyId: string) {
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return `Invalid company ID`;
+    }
+
+    const jobs = await this.jobModel.find({ 'company._id': companyId }).exec();
+    return jobs;
   }
 }
