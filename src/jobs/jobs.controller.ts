@@ -44,6 +44,20 @@ export class JobsController {
     return this.jobsService.findAll();
   }
 
+  @Post('/searchBySkills')
+  @Public()
+  @ResponseMessage('Fetch jobs by skills')
+  fetchJobWithSkills(@Body('skills') skills: string[]) {
+    return this.jobsService.findJobsBySkills(skills);
+  }
+
+  @Get('/company/:companyId')
+  @Public()
+  @ResponseMessage('Fetch all jobs by company ID')
+  findJobsByCompany(@Param('companyId') companyId: string) {
+    return this.jobsService.findJobsByCompany(companyId);
+  }
+
   @Get(':id')
   @Public()
   @ResponseMessage('Fetch job by id')
@@ -65,12 +79,5 @@ export class JobsController {
   @ResponseMessage('Delete a job')
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.jobsService.remove(id, user);
-  }
-
-  @Get('/company/:companyId')
-  @Public()
-  @ResponseMessage('Fetch all jobs by company ID')
-  findJobsByCompany(@Param('companyId') companyId: string) {
-    return this.jobsService.findJobsByCompany(companyId);
   }
 }

@@ -33,9 +33,11 @@ export class JobsService {
       experience,
     } = createJobDto;
 
+    const normalizedSkills = skills.map((skill) => skill.toLowerCase());
+
     let newJob = await this.jobModel.create({
       name,
-      skills,
+      skills: normalizedSkills,
       company,
       salary,
       quantity,
@@ -138,6 +140,20 @@ export class JobsService {
     }
 
     const jobs = await this.jobModel.find({ 'company._id': companyId }).exec();
+    return jobs;
+  }
+
+  async findJobsBySkills(skills: string[]) {
+    if (!skills || skills.length === 0) {
+      return `No skills provided`;
+    }
+
+    const jobs = await this.jobModel
+      .find({
+        skills: { $in: skills },
+      })
+      .exec();
+
     return jobs;
   }
 }
