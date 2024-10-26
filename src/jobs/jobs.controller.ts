@@ -44,7 +44,7 @@ export class JobsController {
     return this.jobsService.findAll();
   }
 
-  @Post('/searchBySkills')
+  @Post('/fetchJobBySkills')
   @Public()
   @ResponseMessage('Fetch jobs by skills')
   fetchJobWithSkills(@Body('skills') skills: string[]) {

@@ -58,7 +58,7 @@ export class AuthController {
     // console.log(user);
     const temp = (await this.rolesService.findOne(user.role._id)) as any;
     user.permissions = temp.permissions;
-    return { user };
+    return user;
   }
 
   @Public()
