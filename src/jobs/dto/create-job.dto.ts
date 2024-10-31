@@ -27,7 +27,7 @@ class Company {
   logo: string;
 
   @IsNotEmpty()
-  scale: string;
+  scale: number;
 }
 
 export class CreateJobDto {
@@ -57,10 +57,31 @@ export class CreateJobDto {
   quantity: number;
 
   @IsNotEmpty({ message: 'Level không được để trống' })
+  @IsString({ message: 'Level phải là một chuỗi!' })
+  @IsIn(
+    [
+      'Intern Developer',
+      'Fresher Developer',
+      'Junior Developer',
+      'Middle Developer',
+      'Senior Developer',
+      'Lead Developer',
+      'Principal Engineer',
+      'Architect',
+      'Technical Manager',
+      'Director of Engineering',
+      'VP of Engineering',
+      'CTO',
+    ],
+    {
+      message:
+        'Level chỉ có thể là một trong các giá trị: Intern Developer, Fresher Developer, Junior Developer, Middle Developer, Senior Developer, Lead Developer, Principal Engineer, Architect, Technical Manager, Director of Engineering, VP of Engineering, CTO',
+    },
+  )
   level: string;
 
   @IsNotEmpty({ message: 'Experience không được để trống' })
-  experience: string;
+  experience: number;
 
   @IsNotEmpty({ message: 'Description không được để trống' })
   description: string;

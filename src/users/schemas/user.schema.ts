@@ -24,6 +24,9 @@ export class User {
   @Prop()
   address: string;
 
+  @Prop({ default: '' })
+  avatar: string;
+
   @Prop({ type: Object })
   company: {
     _id: mongoose.Schema.Types.ObjectId;
@@ -74,6 +77,9 @@ export class User {
 
   @Prop()
   resetPasswordToken: string;
+
+  @Prop({ default: '' })
+  isPremium: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

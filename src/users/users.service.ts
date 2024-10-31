@@ -204,10 +204,13 @@ export class UsersService {
       tokenCheckVerify,
     });
 
+    console.log('newUser: ', newUser);
+
     const verificationLink = `http://localhost:${this.configService.get<string>(
       'PORT_CLIENT',
     )}/verify-email?token=${tokenCheckVerify}`;
-    const check = await this.mailService.sendEmail(
+
+    await this.mailService.sendEmail(
       newUser.email,
       'Verify your account',
       'verify-email.hbs',

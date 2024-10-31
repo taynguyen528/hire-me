@@ -1,5 +1,4 @@
-//data transfer object // class = {}
-import { IsNotEmpty } from 'class-validator';
+import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class CreateCompanyDto {
   @IsNotEmpty({ message: 'Name không được để trống' })
@@ -11,9 +10,10 @@ export class CreateCompanyDto {
   @IsNotEmpty({ message: 'Description không được để trống' })
   description: string;
 
+  @IsNotEmpty({ message: 'Scale không được để trống' })
+  @IsInt({ message: 'Scale phải là số nguyên!' })
+  scale: number;
+
   @IsNotEmpty({ message: 'Logo không được để trống' })
   logo: string;
-
-  @IsNotEmpty({ message: 'Scale không được để trống' })
-  scale: string;
 }

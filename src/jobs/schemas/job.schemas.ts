@@ -32,7 +32,7 @@ export class Job {
   level: string;
 
   @Prop()
-  experience: string;
+  experience: number;
 
   @Prop()
   description: string;
