@@ -20,6 +20,8 @@ export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
   @Post()
+  @ResponseMessage('Create Company successfully!')
+
   // validate dữ liệu truyền lên qua DTO
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
     // console.log('user info: ', user);

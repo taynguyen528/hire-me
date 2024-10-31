@@ -7,15 +7,29 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class CompaniesService {
   constructor(
     @InjectModel(Company.name)
     private companyModel: SoftDeleteModel<CompanyDocument>, // phải khai báo companyModel vào file module
+    private configService: ConfigService,
   ) {}
 
   // coppy hết dữ liệu truyền lên : ...createCompanyDto
   create(createCompanyDto: CreateCompanyDto, user: IUser) {
+    const scaleMin = this.configService.get<number>('SCALE_MIN');
+    const scaleMax = this.configService.get<number>('SCALE_MAX');
+
+    if (
+      createCompanyDto.scale < scaleMin ||
+      createCompanyDto.scale > scaleMax
+    ) {
+      throw new BadRequestException(
+        `Số lượng nhân viên phải nằm trong khoảng từ ${scaleMin} đến ${scaleMax}`,
+      );
+    }
+
     return this.companyModel.create({
       ...createCompanyDto,
       createBy: { _id: user._id, email: user.email },

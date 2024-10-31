@@ -15,6 +15,9 @@ export class Company {
   description: string;
 
   @Prop()
+  scale: number;
+
+  @Prop()
   logo: string;
 
   @Prop({ type: Object })

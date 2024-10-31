@@ -32,7 +32,7 @@ export class JobsService {
       appliedCandidates,
       experience,
     } = createJobDto;
-
+    console.log({ user, company });
     const normalizedSkills = skills.map((skill) => skill.toLowerCase());
 
     let newJob = await this.jobModel.create({
