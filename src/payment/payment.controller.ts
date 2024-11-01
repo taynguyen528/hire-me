@@ -1,12 +1,13 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { Public } from 'src/decorator/customize';
+import { Public, ResponseMessage } from 'src/decorator/customize';
 
 @Controller('payment')
 export class PaymentController {
   constructor(private paymentService: PaymentService) {}
 
   @Public()
+  @ResponseMessage('Create payment')
   @Get('create-payment')
   createPayment(
     @Query('amount') amount: number,
@@ -17,7 +18,6 @@ export class PaymentController {
         throw new Error('Amount must be a valid number greater than 0');
       }
       const paymentUrl = this.paymentService.createPaymentUrl(amount, ipAddr);
-      console.log('URL thanh toán được tạo:', paymentUrl);
       return { url: paymentUrl };
     } catch (error) {
       console.error('Lỗi khi tạo URL thanh toán:', error);

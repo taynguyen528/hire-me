@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import * as qs from 'qs';
 
 @Injectable()
 export class PaymentService {
@@ -14,19 +13,18 @@ export class PaymentService {
     const vnp_ReturnUrl = this.configService.get<string>('VNP_RETURNURL');
 
     const date = new Date();
-    const createDate = date.toISOString().replace(/[-:T]/g, '').slice(0, 14);
+    const createDate = this.formatDate(date, 'yyyyMMddHHmmss');
     const orderId = `${date.getTime()}`;
     const vnpAmount = amount * 100;
 
-    // Tạo đối tượng tham số VNPay
-    const vnp_Params = {
+    const vnp_Params: { [key: string]: string | number } = {
       vnp_Version: '2.1.0',
       vnp_Command: 'pay',
       vnp_TmnCode,
       vnp_Amount: vnpAmount,
       vnp_CurrCode: 'VND',
       vnp_TxnRef: orderId,
-      vnp_OrderInfo: 'Payment', // Không mã hóa ở đây
+      vnp_OrderInfo: `Payment`,
       vnp_OrderType: 'other',
       vnp_Locale: 'vn',
       vnp_ReturnUrl,
@@ -34,26 +32,20 @@ export class PaymentService {
       vnp_CreateDate: createDate,
     };
 
-    // Sắp xếp tham số theo thứ tự bảng chữ cái
     const sortedParams = Object.keys(vnp_Params)
       .sort()
-      .reduce((acc, key) => {
-        acc[key] = vnp_Params[key];
-        return acc;
-      }, {});
+      .map((key) => `${key}=${encodeURIComponent(vnp_Params[key] as string)}`)
+      .join('&');
 
-    // Ký dữ liệu
-    const signData = qs.stringify(sortedParams, { encode: false });
+    console.log('Chuỗi đem vào hash:', sortedParams);
+    console.log('SecretKey:', vnp_HashSecret);
+
     const hmac = crypto.createHmac('sha512', vnp_HashSecret);
-    const signed = hmac.update(signData).digest('hex');
+    const signed = hmac.update(sortedParams).digest('hex');
+    console.log('Chữ ký được tạo:', signed);
 
-    // Gắn chữ ký vào tham số
-    sortedParams['vnp_SecureHash'] = signed;
-
-    // Tạo URL thanh toán
-    const vnpUrl = `${vnp_Url}?${qs.stringify(sortedParams, {
-      encode: false,
-    })}`;
+    const vnpUrl = `${vnp_Url}?${sortedParams}&vnp_SecureHash=${signed}`;
+    console.log('URL thanh toán được tạo:', vnpUrl);
     return vnpUrl;
   }
 
@@ -65,14 +57,13 @@ export class PaymentService {
 
     const sortedQuery = Object.keys(query)
       .sort()
-      .reduce((acc, key) => {
-        acc[key] = query[key];
-        return acc;
-      }, {});
+      .map((key) => `${key}=${encodeURIComponent(query[key] as string)}`)
+      .join('&');
 
-    const signData = qs.stringify(sortedQuery, { encode: false });
     const hmac = crypto.createHmac('sha512', vnp_HashSecret);
-    const signed = hmac.update(signData).digest('hex');
+    const signed = hmac.update(sortedQuery).digest('hex');
+    console.log('Chuỗi ký callback:', sortedQuery);
+    console.log('Chữ ký xác thực:', signed);
 
     if (signed === vnpSecureHash) {
       if (query.vnp_ResponseCode === '00') {
@@ -83,5 +74,21 @@ export class PaymentService {
     } else {
       return { message: 'Xác thực không thành công!', status: 'invalid' };
     }
+  }
+
+  private formatDate(date: Date, format: string): string {
+    const yyyy = date.getFullYear().toString();
+    const MM = (date.getMonth() + 1).toString().padStart(2, '0');
+    const dd = date.getDate().toString().padStart(2, '0');
+    const HH = date.getHours().toString().padStart(2, '0');
+    const mm = date.getMinutes().toString().padStart(2, '0');
+    const ss = date.getSeconds().toString().padStart(2, '0');
+    return format
+      .replace('yyyy', yyyy)
+      .replace('MM', MM)
+      .replace('dd', dd)
+      .replace('HH', HH)
+      .replace('mm', mm)
+      .replace('ss', ss);
   }
 }
