@@ -56,7 +56,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         targetEndpoint === permission.apiPath,
     );
 
-    if (targetEndpoint.startsWith('/api/v1/auth')) {
+    if (
+      targetEndpoint.startsWith('/api/v1/auth') ||
+      targetEndpoint === '/api/v1/users/update-password'
+    ) {
       isExist = true;
     }
 
