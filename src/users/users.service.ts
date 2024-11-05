@@ -320,4 +320,37 @@ export class UsersService {
 
     return { message: 'Mật khẩu đã được đặt lại thành công.' };
   }
+
+  async updatePassword(
+    email: string,
+    currentPassword: string,
+    newPassword: string,
+    user: IUser,
+  ) {
+    const userCheck = await this.findOneByEmail(email);
+
+    if (!userCheck) {
+      throw new BadRequestException('Người dùng không tồn tại.');
+    }
+
+    if (userCheck.email === user.email) {
+      const isPasswordValid = this.isValidPassword(
+        currentPassword,
+        userCheck.password,
+      );
+      if (!isPasswordValid) {
+        throw new BadRequestException('Mật khẩu hiện tại không chính xác.');
+      }
+
+      const hashedNewPassword = this.getHashPassword(newPassword);
+      userCheck.password = hashedNewPassword;
+      await userCheck.save();
+
+      return { message: 'Mật khẩu đã được cập nhật thành công.' };
+    } else {
+      throw new BadRequestException(
+        'Đã xảy ra lỗi, vui lòng kiểm tra lại token.',
+      );
+    }
+  }
 }

@@ -64,6 +64,22 @@ export class UsersController {
     return this.usersService.remove(id, user);
   }
 
+  @Post('update-password')
+  @ResponseMessage('Update password successfully')
+  async updatePassword(
+    @Body('email') email: string,
+    @Body('currentPassword') currentPassword: string,
+    @Body('newPassword') newPassword: string,
+    @User() user: IUser,
+  ) {
+    return this.usersService.updatePassword(
+      email,
+      currentPassword,
+      newPassword,
+      user,
+    );
+  }
+
   @Public()
   @Post('forgot-password')
   @ResponseMessage('Password reset request successful')
