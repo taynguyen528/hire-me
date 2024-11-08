@@ -2,6 +2,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  IsArray,
   IsEmail,
   IsIn,
   IsMongoId,
@@ -43,6 +45,85 @@ export class CreateUserDto {
 
   @IsNotEmpty({ message: 'Address không được để trống!' })
   address: string;
+
+  @IsNotEmpty({ message: 'Phone không được để trống!' })
+  phone: string;
+
+  @IsNotEmpty({ message: 'Date of birth không thể để trống!' })
+  dateOfBirth: string;
+
+  @IsOptional()
+  @IsArray({ message: 'Skills phải là một mảng!' })
+  @ArrayMinSize(1, { message: 'Skills phải có ít nhất một giá trị!' })
+  @IsIn(
+    [
+      'html',
+      'css',
+      'javascript',
+      'typescript',
+      'backend',
+      'frontend',
+      'fullstack',
+      'reactjs',
+      'vuejs',
+      'docker',
+      'nextjs',
+      'angular',
+      'java',
+      'sass',
+      'less',
+      'tailwindcss',
+      'bootstrap',
+      'nodejs',
+      'expressjs',
+      'nestjs',
+      'php',
+      'laravel',
+      'rubyonrails',
+      'django',
+      'springboot',
+      'aspnet',
+      'reactnative',
+      'flutter',
+      'swift',
+      'kotlin',
+      'javaandroid',
+      'objectivec',
+      'aws',
+      'azure',
+      'googlecloudplatform',
+      'kubernetes',
+      'cicd',
+      'jenkins',
+      'gitlabci',
+      'mysql',
+      'postgresql',
+      'mongodb',
+      'redis',
+      'oracle',
+      'sqlserver',
+      'sqlite',
+      'cybersecurity',
+      'python',
+      'tensorflow',
+      'pytorch',
+      'scikitlearn',
+      'datascience',
+      'machinelearning',
+      'solidity',
+      'web3js',
+      'ethereum',
+      'selenium',
+      'junit',
+      'tester',
+      'mocha',
+      'chai',
+      'jest',
+      'cypress',
+    ],
+    { each: true, message: 'Skills chỉ được chứa các giá trị hợp lệ!' },
+  )
+  skills: string[];
 
   @IsOptional()
   @IsString({ message: 'Avatar phải là một chuỗi!' })

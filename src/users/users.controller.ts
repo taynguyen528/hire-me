@@ -7,11 +7,19 @@ import {
   Param,
   Delete,
   Query,
+  Req,
+  UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Public, ResponseMessage, User } from 'src/decorator/customize';
+import {
+  Public,
+  ResponseMessage,
+  SkipCheckPermission,
+  User,
+} from 'src/decorator/customize';
 import { IUser } from './users.interface';
 import { ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -28,6 +36,30 @@ export class UsersController {
     return {
       _id: newUser?._id,
       createdAt: newUser?.createdAt,
+    };
+  }
+
+  @Get('/profile')
+  @SkipCheckPermission()
+  @ResponseMessage('Get profile')
+  async getProfile(@Req() req) {
+    const email = req.user.email;
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      address: user.address,
+      avatar: user.avatar,
+      phone: user.phone,
+      dateOfBirth: user.dateOfBirth,
+      role: user.role,
+      isVerify: user.isVerify,
+      isPremium: user.isPremium,
     };
   }
 
@@ -64,6 +96,7 @@ export class UsersController {
     return this.usersService.remove(id, user);
   }
 
+  @SkipCheckPermission()
   @Post('update-password')
   @ResponseMessage('Update password successfully')
   async updatePassword(

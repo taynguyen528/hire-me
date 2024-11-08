@@ -27,6 +27,12 @@ export class User {
   @Prop({ default: '' })
   avatar: string;
 
+  @Prop()
+  phone: string;
+
+  @Prop()
+  dateOfBirth: string;
+
   @Prop({ type: Object })
   company: {
     _id: mongoose.Schema.Types.ObjectId;
@@ -56,6 +62,78 @@ export class User {
     _id: mongoose.Schema.Types.ObjectId;
     email: string;
   };
+
+  @Prop({
+    type: [String],
+    enum: [
+      'html',
+      'css',
+      'javascript',
+      'typescript',
+      'backend',
+      'frontend',
+      'fullstack',
+      'reactjs',
+      'vuejs',
+      'docker',
+      'nextjs',
+      'angular',
+      'java',
+      'sass',
+      'less',
+      'tailwindcss',
+      'bootstrap',
+      'nodejs',
+      'expressjs',
+      'nestjs',
+      'php',
+      'laravel',
+      'rubyonrails',
+      'django',
+      'springboot',
+      'aspnet',
+      'reactnative',
+      'flutter',
+      'swift',
+      'kotlin',
+      'javaandroid',
+      'objectivec',
+      'aws',
+      'azure',
+      'googlecloudplatform',
+      'docker',
+      'kubernetes',
+      'cicd',
+      'jenkins',
+      'gitlabci',
+      'mysql',
+      'postgresql',
+      'mongodb',
+      'redis',
+      'oracle',
+      'sqlserver',
+      'sqlite',
+      'cybersecurity',
+      'python',
+      'tensorflow',
+      'pytorch',
+      'scikitlearn',
+      'datascience',
+      'machinelearning',
+      'solidity',
+      'web3js',
+      'ethereum',
+      'selenium',
+      'junit',
+      'tester',
+      'mocha',
+      'chai',
+      'jest',
+      'cypress',
+    ],
+    required: true,
+  })
+  skills: string[];
 
   @Prop()
   createdAt: Date;
