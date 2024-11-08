@@ -58,6 +58,7 @@ export class AuthController {
     // console.log(user);
     const temp = (await this.rolesService.findOne(user.role._id)) as any;
     user.permissions = temp.permissions;
+
     return user;
   }
 
@@ -82,7 +83,6 @@ export class AuthController {
     return this.authService.logout(response, user);
   }
 
-  // Google oauth 2.0
   @Public()
   @Get('google')
   @UseGuards(GoogleAuthGuard)
@@ -122,13 +122,19 @@ export class AuthController {
         name: roleData.name,
       },
       permissions,
+      address: user.address,
+      gender: user.gender,
+      avatar: user.avatar,
+      phone: user.phone,
+      dateOfBirth: user.dateOfBirth,
+      isVerify: user.isVerify,
+      isPremium: user.isPremium,
     };
 
     const responseUser = await this.authService.login(updatedUser, res);
 
     const clientPort = this.configService.get<string>('PORT_CLIENT');
-    const redirectUrl = `http://localhost:${clientPort}?token=${responseUser.access_token}&isLogin=true`;
-
+    const redirectUrl = `http://localhost:${clientPort}?token=${responseUser.access_token}`;
     res.redirect(redirectUrl);
   }
 

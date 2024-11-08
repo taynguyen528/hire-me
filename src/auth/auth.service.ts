@@ -13,7 +13,6 @@ import ms from 'ms';
 import { Response } from 'express';
 import { RolesService } from 'src/roles/roles.service';
 import { MailService } from 'src/mail/mail.service';
-import { ForgotPasswordDto } from 'src/users/dto/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -45,6 +44,11 @@ export class AuthService {
     return null;
   }
 
+  generateJwtToken(user: IUser) {
+    const payload = { sub: user._id, email: user.email, role: user.role };
+    return this.jwtService.sign(payload);
+  }
+
   async register(user: RegisterUserDto) {
     let newUser = await this.usersService.register(user);
     return {
@@ -54,8 +58,18 @@ export class AuthService {
   }
 
   async login(user: IUser, response: Response) {
-    const { _id, name, email, role, permissions } = user;
-
+    const {
+      _id,
+      name,
+      email,
+      role,
+      permissions,
+      address,
+      avatar,
+      phone,
+      dateOfBirth,
+    } = user;
+    console.log('user', user);
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -63,6 +77,11 @@ export class AuthService {
       name,
       email,
       role,
+      permissions,
+      address,
+      avatar,
+      phone,
+      dateOfBirth,
     };
     const refresh_token = this.createRefreshToken(payload);
 
@@ -83,6 +102,10 @@ export class AuthService {
         email,
         role,
         permissions,
+        address,
+        avatar,
+        phone,
+        dateOfBirth,
       },
     };
   }
@@ -210,7 +233,7 @@ export class AuthService {
 
     const verificationLink = `http://localhost:${this.configService.get<string>(
       'PORT_CLIENT',
-    )}/verify-email?tokenCheckVerify=${verifyToken}`;
+    )}/verify-email?token=${verifyToken}`;
     await this.mailService.sendEmail(
       user.email,
       'Resend email verify email',

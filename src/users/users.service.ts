@@ -182,6 +182,7 @@ export class UsersService {
     const { name, email, password } = user;
     // check email
     const isExist = await this.userModel.findOne({ email });
+
     if (isExist) {
       throw new BadRequestException(
         `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác!`,
@@ -202,6 +203,12 @@ export class UsersService {
       role: userRole?._id,
       isVerify: false,
       tokenCheckVerify,
+      address: '',
+      phone: '',
+      dateOfBirth: '',
+      avatar: '',
+      gender: '',
+      skills: [],
     });
 
     console.log('newUser: ', newUser);
@@ -220,11 +227,39 @@ export class UsersService {
     return newUser;
   }
 
+  generateRandomPassword() {
+    const lowerCase = 'abcdefghijklmnopqrstuvwxyz';
+    const upperCase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const digits = '0123456789';
+    const specialCharacters = '!@#$%^&*()-_=+[]{}|;:,.<>?/~';
+
+    let password = [
+      lowerCase[Math.floor(Math.random() * lowerCase.length)],
+      upperCase[Math.floor(Math.random() * upperCase.length)],
+      digits[Math.floor(Math.random() * digits.length)],
+      specialCharacters[Math.floor(Math.random() * specialCharacters.length)],
+    ];
+
+    const allCharacters = lowerCase + upperCase + digits + specialCharacters;
+    const remainingLength = Math.floor(Math.random() * 5) + 4;
+
+    for (let i = 0; i < remainingLength; i++) {
+      password.push(
+        allCharacters[Math.floor(Math.random() * allCharacters.length)],
+      );
+    }
+
+    password = password.sort(() => Math.random() - 0.5);
+
+    return password.join('');
+  }
+
   async createFromGoogle(
     email: string,
     name: string,
     gender: string,
-    picture: string,
+    avatar: string,
+    isVerify: boolean,
   ) {
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
@@ -233,10 +268,9 @@ export class UsersService {
       );
     }
 
-    const password = '123456';
+    const password = this.generateRandomPassword();
     const salt = genSaltSync(10);
     const hashedPassword = hashSync(password, salt);
-
     const userRole = await this.roleModel.findOne({ name: USER_ROLE });
 
     if (!userRole) {
@@ -250,11 +284,16 @@ export class UsersService {
       email,
       password: hashedPassword,
       gender,
-      picture,
-      isVerify: false,
+      avatar,
+      address: '',
+      phone: '',
+      dateOfBirth: '',
+      isVerify,
       tokenCheckVerify,
       role: userRole?._id,
     });
+
+    console.log('newUser: ', newUser);
 
     return newUser;
   }
