@@ -14,11 +14,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+
+    console.log('Exception Response:', exceptionResponse);
 
     response.status(status).json({
       statusCode: status,
-      error: 'Payload Too Large',
-      message: 'File too large customize',
+      error: exceptionResponse['error'] || 'Http Exception',
+      message: exceptionResponse['message'] || 'An error occurred',
     });
   }
 }

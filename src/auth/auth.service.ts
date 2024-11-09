@@ -69,7 +69,7 @@ export class AuthService {
       phone,
       dateOfBirth,
     } = user;
-    console.log('user', user);
+    
     const payload = {
       sub: 'token login',
       iss: 'from server',
