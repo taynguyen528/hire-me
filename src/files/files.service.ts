@@ -1,26 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { CreateFileDto } from './dto/create-file.dto';
-import { UpdateFileDto } from './dto/update-file.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from 'src/users/schemas/user.schema';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class FilesService {
-  create(createFileDto: CreateFileDto) {
-    return 'This action adds a new file';
-  }
+  constructor(private userService: UsersService) {}
+  async saveUserAvatar(file: Express.Multer.File, email: string) {
+    const user = await this.userService.findOneByEmail(email);
 
-  findAll() {
-    return `This action returns all files`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} file`;
-  }
-
-  update(id: number, updateFileDto: UpdateFileDto) {
-    return `This action updates a #${id} file`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} file`;
+    if (user) {
+      user.avatar = file.filename;
+      await user.save();
+    }
+    return { fileName: user.avatar };
   }
 }

@@ -60,6 +60,8 @@ export class UsersController {
       role: user.role,
       isVerify: user.isVerify,
       isPremium: user.isPremium,
+      skills: user.skills,
+      gender: user.gender,
     };
   }
 

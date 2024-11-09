@@ -10,7 +10,11 @@ import {
 } from '@nestjs/common';
 import { ResumesService } from './resumes.service';
 import { CreateUserCvDto } from './dto/create-resume.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import {
+  ResponseMessage,
+  SkipCheckPermission,
+  User,
+} from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -42,6 +46,8 @@ export class ResumesController {
   }
 
   @Post('by-user')
+  // @SkipCheckPermission()
+  @SkipCheckPermission()
   @ResponseMessage('Get Resumes by User')
   getResumeByUser(@User() user: IUser) {
     return this.resumesService.findByUser(user);
