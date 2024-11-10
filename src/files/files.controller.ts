@@ -37,7 +37,7 @@ export class FilesController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    return { fileName: file.filename };
+    return this.filesService.upload(file);
   }
 
   @Post('upload-avatar')
@@ -50,6 +50,19 @@ export class FilesController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    return this.filesService.saveUserAvatar(file, req.user.email);
+    return this.filesService.uploadAvatar(file, req.user.email);
+  }
+
+  @Post('upload-resume')
+  @SkipCheckPermission()
+  @ResponseMessage('Upload user resume')
+  @UseInterceptors(FileInterceptor('fileUpload'))
+  @UseFilters(new HttpExceptionFilter())
+  uploadResume(
+    @Req() req,
+    @UploadedFile()
+    file: Express.Multer.File,
+  ) {
+    return this.filesService.uploadMyResume(file, req.user.email);
   }
 }

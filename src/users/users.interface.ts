@@ -9,6 +9,7 @@ export interface IUser {
   dateOfBirth: string;
   isVerify: string;
   isPremium: string;
+  myCV: string;
   role: {
     _id: string;
     name: string;

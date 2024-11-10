@@ -209,6 +209,7 @@ export class UsersService {
       avatar: '',
       gender: '',
       skills: [],
+      myCV: [],
     });
 
     console.log('newUser: ', newUser);

@@ -141,6 +141,9 @@ export class User {
 
   @Prop({ default: '' })
   isPremium: string;
+
+  @Prop({ type: [String], default: [] })
+  myCV: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

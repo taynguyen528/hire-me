@@ -62,6 +62,7 @@ export class UsersController {
       isPremium: user.isPremium,
       skills: user.skills,
       gender: user.gender,
+      myCV: user.myCV,
     };
   }
 

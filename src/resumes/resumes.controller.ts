@@ -24,6 +24,7 @@ export class ResumesController {
   constructor(private readonly resumesService: ResumesService) {}
 
   @Post()
+  @SkipCheckPermission()
   @ResponseMessage('Create a new resume')
   create(@Body() createUserCvDto: CreateUserCvDto, @User() user: IUser) {
     return this.resumesService.create(createUserCvDto, user);
