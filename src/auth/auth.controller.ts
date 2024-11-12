@@ -129,6 +129,7 @@ export class AuthController {
       dateOfBirth: user.dateOfBirth,
       isVerify: user.isVerify,
       isPremium: user.isPremium,
+      myCV: user.myCV,
     };
 
     const responseUser = await this.authService.login(updatedUser, res);

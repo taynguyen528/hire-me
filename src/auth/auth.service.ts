@@ -77,7 +77,7 @@ export class AuthService {
       name,
       email,
       role,
-      permissions,
+      // permissions,
       address,
       avatar,
       phone,
