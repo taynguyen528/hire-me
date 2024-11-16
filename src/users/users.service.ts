@@ -45,8 +45,16 @@ export class UsersService {
   };
 
   async create(createUserDto: CreateUserDto, @User() user: IUser) {
-    const { name, email, password, birthday, gender, address, role, company } =
-      createUserDto;
+    const {
+      name,
+      email,
+      password,
+      dateOfBirth,
+      gender,
+      address,
+      role,
+      company,
+    } = createUserDto;
 
     // check email
     const isExist = await this.userModel.findOne({ email });
@@ -62,7 +70,7 @@ export class UsersService {
       name,
       email,
       password: hashPassword,
-      birthday,
+      dateOfBirth,
       gender,
       address,
       role,
@@ -139,9 +147,13 @@ export class UsersService {
     return compareSync(password, hashPassword);
   }
 
-  async update(updateUserDto: UpdateUserDto, user: IUser) {
+  async update(updateUserDto: UpdateUserDto, user: IUser, _id: string) {
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      throw new BadRequestException(`Not found user with id = ${_id}`);
+    }
+
     const updated = await this.userModel.updateOne(
-      { _id: updateUserDto._id },
+      { _id: _id },
       {
         ...updateUserDto,
         updatedBy: {

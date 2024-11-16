@@ -85,11 +85,16 @@ export class UsersController {
     return foundUser;
   }
 
+  @SkipCheckPermission()
   @ResponseMessage('Update a user')
-  @Patch()
+  @Patch(':id')
   //@User() user: IUser dựa vào đây để biết ai là người cập nhật User
-  update(@Body() updateUserDto: UpdateUserDto, @User() user: IUser) {
-    let updateUser = this.usersService.update(updateUserDto, user);
+  update(
+    @Body() updateUserDto: UpdateUserDto,
+    @User() user: IUser,
+    @Param('id') id: string,
+  ) {
+    let updateUser = this.usersService.update(updateUserDto, user, id);
     return updateUser;
   }
 
