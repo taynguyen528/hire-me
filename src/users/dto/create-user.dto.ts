@@ -36,10 +36,6 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Password không được để trống!' })
   password: string;
 
-  @IsNotEmpty({ message: 'Birthday không được để trống!' })
-  @IsString()
-  birthday: string;
-
   @IsNotEmpty({ message: 'Gender không được để trống!' })
   gender: string;
 
@@ -50,6 +46,7 @@ export class CreateUserDto {
   phone: string;
 
   @IsNotEmpty({ message: 'Date of birth không thể để trống!' })
+  @IsString()
   dateOfBirth: string;
 
   @IsOptional()

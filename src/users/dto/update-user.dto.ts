@@ -1,8 +1,85 @@
-import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { CreateUserDto } from './create-user.dto';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
-export class UpdateUserDto extends OmitType(CreateUserDto, [
-  'password',
-] as const) {
-  _id: string;
+export class UpdateUserDto {
+  @IsNotEmpty({ message: 'Name không được để trống!' })
+  name: string;
+
+  @IsNotEmpty({ message: 'Gender không được để trống!' })
+  @IsString()
+  gender: string;
+
+  @IsNotEmpty({ message: 'Address không được để trống!' })
+  @IsString()
+  address: string;
+
+  @IsNotEmpty({ message: 'Phone không được để trống!' })
+  phone: string;
+
+  @IsNotEmpty({ message: 'Date of birth không thể để trống!' })
+  @IsString()
+  dateOfBirth: string;
+
+  @IsOptional()
+  @IsArray({ message: 'Skills phải là một mảng!' })
+  @ArrayMinSize(1, { message: 'Skills phải có ít nhất một giá trị!' })
+  @IsIn(
+    [
+      'html',
+      'css',
+      'javascript',
+      'typescript',
+      'backend',
+      'frontend',
+      'fullstack',
+      'reactjs',
+      'vuejs',
+      'docker',
+      'nextjs',
+      'angular',
+      'sass',
+      'less',
+      'tailwindcss',
+      'bootstrap',
+      'nodejs',
+      'expressjs',
+      'nestjs',
+      'php',
+      'laravel',
+      'rubyonrails',
+      'django',
+      'springboot',
+      'aspnet',
+      'reactnative',
+      'flutter',
+      'swift',
+      'kotlin',
+      'javaandroid',
+      'objectivec',
+      'aws',
+      'googlecloudplatform',
+      'docker',
+      'cicd',
+      'gitlabci',
+      'mysql',
+      'postgresql',
+      'mongodb',
+      'redis',
+      'oracle',
+      'sqlserver',
+      'sqlite',
+      'python',
+      'datascience',
+      'machinelearning',
+      'selenium',
+    ],
+    { each: true, message: 'Skills chỉ được chứa các giá trị hợp lệ!' },
+  )
+  skills: string[];
 }
