@@ -139,7 +139,7 @@ export class User {
   @Prop()
   resetPasswordToken: string;
 
-  @Prop({ default: '' })
+  @Prop({ default: 'bGl0ZQ==' })
   isPremium: string;
 
   @Prop({ type: [String], default: [] })

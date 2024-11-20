@@ -405,4 +405,16 @@ export class UsersService {
       );
     }
   }
+
+  async setPremium(typePre: string, email: string) {
+    const user = await this.findOneByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('Người dùng không tồn tại.');
+    }
+    user.isPremium = typePre;
+    await user.save();
+
+    return { message: 'Cập nhật trạng thái thành công.' };
+  }
 }
