@@ -137,4 +137,11 @@ export class UsersController {
   ) {
     return this.usersService.resetPassword(tokenResetPassword, newPassword);
   }
+
+  @Post('set-premium')
+  @ResponseMessage('Set premium')
+  @SkipCheckPermission()
+  async setPremium(@Body('typePre') typePre: string, @Req() req) {
+    return this.usersService.setPremium(typePre, req.user.email);
+  }
 }

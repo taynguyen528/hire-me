@@ -115,7 +115,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString({ message: 'isPremium phải là một chuỗi!' })
-  @IsIn(['Lite', 'Plus', 'Max'], {
+  @IsIn(['bGl0ZQ==', 'cGx1cw==', 'bWF4'], {
     message: 'isPremium chỉ có thể là một trong các giá trị: Lite, Plus, Max',
   })
   isPremium: string;

@@ -117,8 +117,6 @@ export class PaymentController {
     @Query('txnRef') txnRef: string,
     @Query('vnp_Amount') vnp_Amount: string,
   ) {
-    console.log('txnRef:', txnRef);
-    console.log('vnp_Amount:', vnp_Amount); // Log giá trị nhận được
     try {
       const transaction = await this.paymentService.getTransactionByOrderId(
         txnRef,
