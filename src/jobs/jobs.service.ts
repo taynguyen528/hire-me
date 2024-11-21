@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { Job, JobDocument } from './schemas/job.schemas';
@@ -7,12 +12,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class JobsService {
   constructor(
     @InjectModel(Job.name)
     private jobModel: SoftDeleteModel<JobDocument>, // phải khai báo jobModel vào file module
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
   ) {}
   async create(createJobDto: CreateJobDto, user: IUser) {
     const {
@@ -32,7 +40,6 @@ export class JobsService {
       appliedCandidates,
       experience,
     } = createJobDto;
-    console.log({ user, company });
     const normalizedSkills = skills.map((skill) => skill.toLowerCase());
 
     let newJob = await this.jobModel.create({
@@ -63,7 +70,12 @@ export class JobsService {
     };
   }
 
-  async findAllWithPaginate(currentPage: number, limit: number, qs: string) {
+  async findAllWithPaginate(
+    currentPage: number,
+    limit: number,
+    qs: string,
+    email: string,
+  ) {
     const { filter, sort, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
@@ -93,30 +105,85 @@ export class JobsService {
     };
   }
 
+  async findJobsByHr(
+    email: string,
+    currentPage: number,
+    limit: number,
+    qs: string,
+  ) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user.company || !user.company._id) {
+      throw new BadRequestException('HR must belong to a company to view jobs');
+    }
+
+    const { filter, sort, population } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+
+    filter['company._id'] = user.company._id;
+
+    const offset = (+currentPage - 1) * +limit;
+    const defaultLimit = +limit ? +limit : 10;
+
+    const totalItems = await this.jobModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.jobModel
+      .find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      // @ts-ignore: Unreachable code error
+      .sort(sort)
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems,
+      },
+      result,
+    };
+  }
+
   async findAll() {
     const jobs = await this.jobModel.find().exec();
     return jobs;
   }
 
+  // async findOne(id: string) {
+  //   if (!mongoose.Types.ObjectId.isValid(id)) {
+  //     return `Not found job`;
+  //   }
+  //   return await this.jobModel.findById(id);
+  // }
+
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return `Not found job`;
+      throw new BadRequestException('Invalid job ID');
     }
-    return await this.jobModel.findById(id);
+
+    const job = await this.jobModel.findById(id);
+    if (!job) {
+      throw new BadRequestException('Job not found');
+    }
+
+    return job;
   }
 
-  async update(id: string, updateJobDto: UpdateJobDto, user: IUser) {
-    const updated = await this.jobModel.updateOne(
-      { _id: id },
+  async update(id: string, updateJobDto: Partial<UpdateJobDto>, user: IUser) {
+    const updatedJob = await this.jobModel.findByIdAndUpdate(
+      id,
       {
         ...updateJobDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email,
-        },
+        updatedBy: { _id: user._id, email: user.email },
       },
+      { new: true },
     );
-    return updated;
+    return updatedJob;
   }
 
   async remove(id: string, user: IUser) {

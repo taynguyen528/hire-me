@@ -1,23 +1,25 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserCvDto } from './dto/create-resume.dto';
-import { UpdateResumeDto } from './dto/update-resume.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Resume, ResumeDocument } from './schemas/resume.schemas';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { UsersService } from 'src/users/users.service';
+import { JobsService } from 'src/jobs/jobs.service';
 
 @Injectable()
 export class ResumesService {
   constructor(
     @InjectModel(Resume.name)
     private resumeModel: SoftDeleteModel<ResumeDocument>, // phải khai báo ResumeModel vào file module
+    private usersService: UsersService,
+    private jobsService: JobsService,
   ) {}
 
   async create(createUserCvDto: CreateUserCvDto, user: IUser) {
     const { url, companyId, jobId } = createUserCvDto;
-
     const { email, _id } = user;
 
     const newCV = await this.resumeModel.create({
@@ -27,21 +29,26 @@ export class ResumesService {
       jobId,
       userId: _id,
       status: 'PENDING',
-      createdBy: {
-        _id,
-        email,
-      },
+      createdBy: { _id, email },
       history: [
         {
           status: 'PENDING',
           updatedAt: new Date(),
-          updatedBy: {
-            _id: user._id,
-            email: user.email,
-          },
+          updatedBy: { _id: user._id, email: user.email },
         },
       ],
     });
+
+    const job = await this.jobsService.findOne(jobId.toString());
+    if (!job) {
+      throw new BadRequestException('Job not found');
+    }
+
+    await this.jobsService.update(
+      jobId.toString(),
+      { appliedCandidates: (job.appliedCandidates || 0) + 1 },
+      user,
+    );
 
     return {
       _id: newCV?._id,
@@ -77,6 +84,53 @@ export class ResumesService {
         total: totalItems, // tổng số phần tử (số bản ghi)
       },
       result, //kết quả query
+    };
+  }
+
+  async findAllByHr(
+    email: string,
+    currentPage: number,
+    limit: number,
+    qs: string,
+  ) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user.company || !user.company._id) {
+      throw new BadRequestException(
+        'HR must belong to a company to view resumes',
+      );
+    }
+
+    const { filter, sort, population, projection } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+
+    filter.companyId = user.company._id;
+
+    const offset = (+currentPage - 1) * +limit;
+    const defaultLimit = +limit ? +limit : 10;
+
+    const totalItems = await this.resumeModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.resumeModel
+      .find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      // @ts-ignore: Unreachable code error
+      .sort(sort)
+      .populate(population)
+      .select(projection as any)
+      .exec();
+
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems,
+      },
+      result,
     };
   }
 

@@ -11,7 +11,12 @@ import {
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
-import { Public, ResponseMessage, User } from 'src/decorator/customize';
+import {
+  Public,
+  ResponseMessage,
+  SkipCheckPermission,
+  User,
+} from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -27,14 +32,31 @@ export class JobsController {
   }
 
   @Get()
-  @Public()
   @ResponseMessage('Fetch jobs with pagination')
   findAllWithPaginate(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
     @Query() qs: string,
+    @User() user: IUser,
   ) {
-    return this.jobsService.findAllWithPaginate(+currentPage, +limit, qs);
+    return this.jobsService.findAllWithPaginate(
+      +currentPage,
+      +limit,
+      qs,
+      user.email,
+    );
+  }
+
+  @Get('/by-hr')
+  @SkipCheckPermission()
+  @ResponseMessage('Fetch jobs for HR by company')
+  findJobsByHr(
+    @User() user: IUser,
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
+    @Query() qs: string,
+  ) {
+    return this.jobsService.findJobsByHr(user.email, +currentPage, +limit, qs);
   }
 
   @Get('/getAllJobs')
