@@ -36,8 +36,26 @@ export class ResumesController {
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
     @Query() qs: string,
+    @User() user: IUser,
   ) {
     return this.resumesService.findAll(+currentPage, +limit, qs);
+  }
+
+  @Get('by-hr')
+  @SkipCheckPermission()
+  @ResponseMessage('Fetch resumes for HR')
+  findAllByHr(
+    @User() user: IUser,
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
+    @Query() qs: string,
+  ) {
+    return this.resumesService.findAllByHr(
+      user.email,
+      +currentPage,
+      +limit,
+      qs,
+    );
   }
 
   @Get(':id')
