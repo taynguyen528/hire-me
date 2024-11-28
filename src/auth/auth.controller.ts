@@ -131,11 +131,11 @@ export class AuthController {
       isPremium: user.isPremium,
       myCV: user.myCV,
     };
-
     const responseUser = await this.authService.login(updatedUser, res);
 
     const clientPort = this.configService.get<string>('PORT_CLIENT');
-    const redirectUrl = `http://localhost:${clientPort}?token=${responseUser.access_token}`;
+    const redirectUrl = `http://localhost:${clientPort}?token=${responseUser.access_token}?isPremium=${updatedUser.isPremium}?isAdmin=GVTYYVDF0cFVNJiZ1eu2?isAuth=FVCHbxMAxePUFQG0tcDV`;
+
     res.redirect(redirectUrl);
   }
 

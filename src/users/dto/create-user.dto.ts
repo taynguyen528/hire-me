@@ -125,6 +125,7 @@ export class CreateUserDto {
   role: mongoose.Schema.Types.ObjectId;
 
   //validate object => dùng package class-transformer
+  @IsOptional()
   @IsNotEmptyObject()
   @IsObject()
   @ValidateNested()

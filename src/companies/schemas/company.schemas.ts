@@ -20,6 +20,9 @@ export class Company {
   @Prop()
   logo: string;
 
+  @Prop()
+  background: string;
+
   @Prop({ type: Object })
   createBy: {
     _id: mongoose.Schema.Types.ObjectId;
