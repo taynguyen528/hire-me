@@ -68,8 +68,9 @@ export class AuthService {
       avatar,
       phone,
       dateOfBirth,
+      isPremium,
     } = user;
-    
+
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -82,6 +83,7 @@ export class AuthService {
       avatar,
       phone,
       dateOfBirth,
+      isPremium,
     };
     const refresh_token = this.createRefreshToken(payload);
 
@@ -106,6 +108,7 @@ export class AuthService {
         avatar,
         phone,
         dateOfBirth,
+        isPremium,
       },
     };
   }
