@@ -20,6 +20,7 @@ export class CreateCompanyDto {
   @IsString({ message: 'Logo phải là chuỗi' })
   logo: string;
 
+  @IsOptional()
   @IsNotEmpty({ message: 'Background không được để trống' })
   @IsString({ message: 'Background phải là chuỗi' })
   background: string;
