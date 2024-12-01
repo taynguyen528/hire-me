@@ -25,6 +25,7 @@ export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}
 
   @Post()
+  @SkipCheckPermission()
   @ResponseMessage('Create a subscriber')
   create(
     @Body() createSubscriberDto: CreateSubscriberDto,

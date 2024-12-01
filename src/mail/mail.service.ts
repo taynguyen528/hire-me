@@ -29,7 +29,7 @@ export class MailService {
     try {
       await this.mailerService.sendMail({
         to,
-        from: '"Support Team" <support@example.com>',
+        from: '"Support Team HireMe" <pttnguyen528@gmail.com>',
         subject,
         template,
         context,
@@ -40,34 +40,45 @@ export class MailService {
   }
 
   async sendJobEmails() {
-    const subscribers = await this.subscriberModel.find({});
-    for (const subs of subscribers) {
-      const subsSkills = subs.skills;
-      const jobWithMatchingSkills = await this.jobModal.find({
-        skills: { $in: subsSkills },
+    const users = await this.subscriberModel.find({ isDeleted: false });
+
+    let emailCount = 0;
+
+    for (const user of users) {
+      const userSkills = user.skills;
+
+      if (!userSkills || userSkills.length === 0) {
+        continue;
+      }
+
+      const jobsMatchingSkills = await this.jobModal.find({
+        skills: { $in: userSkills },
       });
 
-      if (jobWithMatchingSkills?.length > 0) {
-        const jobs = jobWithMatchingSkills.map((item) => {
-          return {
-            name: item.name,
-            company: item.company.name,
-            salary:
-              `${item.salary}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' đ',
-            skills: item.skills,
-          };
-        });
+      if (jobsMatchingSkills.length > 0) {
+        const jobs = jobsMatchingSkills.map((job) => ({
+          name: job.name,
+          company: job.company.name,
+          salary: `${job.salary}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' đ',
+          skills: job.skills,
+          location: job.location,
+        }));
 
         await this.sendEmail(
-          'anguyenvan0236@gmail.com',
-          'Welcome to Nice App! Confirm your Email',
-          'new-jobs',
+          user.email,
+          'Công việc phù hợp với kỹ năng của bạn',
+          'send-job-email',
           {
-            receiver: subs.name,
+            receiver: user.name,
             jobs: jobs,
           },
         );
+        emailCount++;
+      } else {
+        console.log(`No jobs found matching skills for user ${user.name}`);
       }
     }
+
+    return `Emails sent: ${emailCount}`;
   }
 }

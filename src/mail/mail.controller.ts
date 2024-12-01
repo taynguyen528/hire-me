@@ -1,7 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
 import { MailService } from './mail.service';
-import { Public, ResponseMessage } from 'src/decorator/customize';
-import { Cron } from '@nestjs/schedule';
+import {
+  Public,
+  ResponseMessage,
+  SkipCheckPermission,
+} from 'src/decorator/customize';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('mail')
@@ -11,10 +15,14 @@ export class MailController {
 
   @Get()
   @Public()
-  @ResponseMessage('Test email')
-  @Cron('0 0 0 * * 0') // 0h 00p every sunday
-  // @Cron("*/30 * * * * *") // Every 30 seconds
-  async handleTestEmail() {
-    await this.mailService.sendJobEmails(); // Delegate the job emails to MailService
+  @SkipCheckPermission()
+  @Cron(CronExpression.EVERY_WEEK)
+  @ResponseMessage('Send job')
+  async handleSendJobs() {
+    const result = await this.mailService.sendJobEmails();
+    return {
+      message: 'Send job completed',
+      result,
+    };
   }
 }
