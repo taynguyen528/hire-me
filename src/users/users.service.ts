@@ -57,18 +57,16 @@ export class UsersService {
       company,
     } = createUserDto;
 
-    // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
       throw new BadRequestException(
         `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác!`,
       );
     }
-    console.log('company', company);
 
     const hashPassword = this.getHashPassword(password);
 
-    const newUser = await this.userModel.create({
+    const newUserData: any = {
       name,
       email,
       password: hashPassword,
@@ -81,7 +79,20 @@ export class UsersService {
         _id: user._id,
         email: user.email,
       },
-    });
+    };
+
+    if (role.toString() === '66376960e60f6eda1161fdf2') {
+      if (!company) {
+        throw new BadRequestException(
+          `Người dùng có role ${role} cần phải có thông tin công ty.`,
+        );
+      }
+      newUserData.company = company;
+      newUserData.isVerify = true;
+    }
+
+    const newUser = await this.userModel.create(newUserData);
+
     return newUser;
   }
 
