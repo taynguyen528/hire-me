@@ -1,0 +1,66 @@
+<html lang='vi'>
+
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Job Recommendations</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, 'Noto Sans', sans-serif; background-color:
+      #f9f9f9; margin: 0; padding: 0; color: #333; line-height: 1.6; }
+      .container { max-width: 600px; margin: 30px auto; background-color:
+      #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,
+      0, 0, 0.1); } .header { text-align: center; border-bottom: 2px solid
+      #007bff; padding: 20px 0; } .header h1 { color: #007bff; font-size: 26px;
+      margin: 0; } .header p { font-size: 16px; color: #666; } .content {
+      padding: 20px 0; } .job-item { margin-bottom: 20px; padding: 20px; border:
+      1px solid #e0e0e0; border-radius: 8px; background-color: #fdfdfd;
+      transition: transform 0.3s, box-shadow 0.3s; } .job-item:hover {
+      transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+      .job-item h2 { font-size: 18px; color: #333; margin-bottom: 10px; }
+      .job-item p { font-size: 14px; color: #555; margin: 5px 0; } .skills {
+      margin-top: 10px; } .skills span { display: inline-block;
+      background-color: #007bff; color: #fff; font-size: 12px; padding: 3px
+      10px; border-radius: 5px; margin: 0 5px 5px 0; } .footer { text-align:
+      center; margin-top: 30px; } .footer a { display: inline-block; padding:
+      10px 20px; background-color: #007bff; color: #fff; text-decoration: none;
+      border-radius: 5px; font-size: 16px; transition: background-color 0.3s; }
+      .footer a:hover { background-color: #007bff; } .footer p { font-size:
+      12px; color: #777; margin-top: 20px; }
+    </style>
+  </head>
+
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <h1>Xin chào {{receiver}}!</h1>
+        <p>Chúng tôi đã tìm thấy một số công việc phù hợp với kỹ năng của bạn:</p>
+      </div>
+
+      <div class='content'>
+        {{#each jobs}}
+          <div class='job-item'>
+            <h2>{{name}}</h2>
+            <p><strong>Công ty:</strong> {{company}}</p>
+            <p><strong>Địa điểm:</strong>
+              {{#if location}}{{location}}{{else}}Không xác định{{/if}}</p>
+            <p><strong>Mức lương:</strong> {{salary}}</p>
+            <div class='skills'>
+              <strong>Kỹ năng yêu cầu:</strong>
+              {{#each skills}}
+                <span>{{this}}</span>
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+
+      <div class='footer'>
+        <a href='http://localhost:5173/jobs' target='_blank'>Xem thêm công việc</a>
+        <p>Chúc bạn một ngày tốt lành!</p>
+        <p>Đội ngũ hỗ trợ từ HireMe</p>
+      </div>
+    </div>
+  </body>
+
+</html>

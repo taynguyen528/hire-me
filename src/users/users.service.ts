@@ -45,8 +45,17 @@ export class UsersService {
   };
 
   async create(createUserDto: CreateUserDto, @User() user: IUser) {
-    const { name, email, password, dateOfBirth, gender, address, role, phone } =
-      createUserDto;
+    const {
+      name,
+      email,
+      password,
+      dateOfBirth,
+      gender,
+      address,
+      role,
+      phone,
+      company,
+    } = createUserDto;
 
     // check email
     const isExist = await this.userModel.findOne({ email });
@@ -55,6 +64,7 @@ export class UsersService {
         `Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác!`,
       );
     }
+    console.log('company', company);
 
     const hashPassword = this.getHashPassword(password);
 
