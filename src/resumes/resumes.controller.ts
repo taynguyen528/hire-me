@@ -65,7 +65,6 @@ export class ResumesController {
   }
 
   @Post('by-user')
-  // @SkipCheckPermission()
   @SkipCheckPermission()
   @ResponseMessage('Get Resumes by User')
   getResumeByUser(@User() user: IUser) {

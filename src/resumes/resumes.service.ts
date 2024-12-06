@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import aqp from 'api-query-params';
 import { UsersService } from 'src/users/users.service';
 import { JobsService } from 'src/jobs/jobs.service';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class ResumesService {
@@ -16,6 +17,7 @@ export class ResumesService {
     private resumeModel: SoftDeleteModel<ResumeDocument>, // phải khai báo ResumeModel vào file module
     private usersService: UsersService,
     private jobsService: JobsService,
+    private mailService: MailService,
   ) {}
 
   async create(createUserCvDto: CreateUserCvDto, user: IUser) {
@@ -162,9 +164,9 @@ export class ResumesService {
 
   async update(_id: string, status: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(_id)) {
-      throw new BadRequestException('not found resume');
+      throw new BadRequestException('Resume not found');
     }
-    console.log('_id', _id);
+
     const updated = await this.resumeModel.updateOne(
       { _id },
       {
@@ -175,7 +177,7 @@ export class ResumesService {
         },
         $push: {
           history: {
-            status: status,
+            status,
             updatedAt: new Date(),
             updatedBy: {
               _id: user._id,
@@ -186,7 +188,20 @@ export class ResumesService {
       },
     );
 
-    console.log('updated', updated);
+    if (updated.modifiedCount > 0) {
+      const resume = await this.resumeModel.findById(_id);
+      const candidateEmail = resume?.email;
+
+
+      console.log(user.email);
+      if (candidateEmail) {
+        await this.mailService.sendStatusUpdateEmail(
+          candidateEmail,
+          status,
+          resume.updatedBy.email,
+        );
+      }
+    }
 
     return updated;
   }

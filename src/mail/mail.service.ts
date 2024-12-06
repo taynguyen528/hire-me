@@ -81,4 +81,31 @@ export class MailService {
 
     return `Emails sent: ${emailCount}`;
   }
+
+  async sendStatusUpdateEmail(
+    candidateEmail: string,
+    status: string,
+    recruiterEmail: string,
+  ) {
+    try {
+      await this.mailerService.sendMail({
+        to: candidateEmail,
+        from: `"Nhà tuyển dụng" <${recruiterEmail}>`,
+        subject: 'Cập nhật trạng thái hồ sơ',
+        template: 'status-update-email',
+        context: {
+          status,
+          recruiterEmail,
+          message:
+            status === 'ACCEPT'
+              ? 'Chúng tôi rất vui khi thông báo hồ sơ của bạn đã được chấp nhận!'
+              : 'Rất tiếc, hồ sơ của bạn không phù hợp ở thời điểm hiện tại. Chúng tôi sẽ liên hệ khi có cơ hội mới.',
+        },
+      });
+
+      console.log(`Email sent to ${candidateEmail} with status: ${status}`);
+    } catch (error) {
+      console.error(`Error sending email to ${candidateEmail}:`, error);
+    }
+  }
 }
