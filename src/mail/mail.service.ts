@@ -87,19 +87,39 @@ export class MailService {
     status: string,
     recruiterEmail: string,
   ) {
+    const emailDetails = {
+      REVIEW: {
+        subject: 'Hồ sơ của bạn đã được xem',
+        message:
+          'Nhà tuyển dụng đã xem hồ sơ của bạn. Vui lòng theo dõi email để nhận thêm thông tin về các bước tiếp theo.',
+      },
+      APPROVED: {
+        subject: 'Chúc mừng! Bạn đã trúng tuyển',
+        message:
+          'Chúc mừng bạn! Hồ sơ của bạn đã được duyệt và bạn đã trúng tuyển. Nhà tuyển dụng sẽ sớm liên hệ với bạn để cung cấp thêm thông tin.',
+      },
+      REJECTED: {
+        subject: 'Rất tiếc, hồ sơ của bạn không phù hợp',
+        message:
+          'Rất tiếc, hồ sơ của bạn không phù hợp ở thời điểm hiện tại. Chúng tôi hy vọng có cơ hội hợp tác trong tương lai.',
+      },
+    };
+
+    const details = emailDetails[status];
+    if (!details) {
+      throw new Error(`Invalid status: ${status}`);
+    }
+
     try {
       await this.mailerService.sendMail({
         to: candidateEmail,
         from: `"Nhà tuyển dụng" <${recruiterEmail}>`,
-        subject: 'Cập nhật trạng thái hồ sơ',
+        subject: details.subject,
         template: 'status-update-email',
         context: {
           status,
           recruiterEmail,
-          message:
-            status === 'ACCEPT'
-              ? 'Chúng tôi rất vui khi thông báo hồ sơ của bạn đã được chấp nhận!'
-              : 'Rất tiếc, hồ sơ của bạn không phù hợp ở thời điểm hiện tại. Chúng tôi sẽ liên hệ khi có cơ hội mới.',
+          message: details.message,
         },
       });
 

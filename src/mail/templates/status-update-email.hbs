@@ -1,8 +1,39 @@
-<h1>Thông báo cập nhật trạng thái hồ sơ</h1>
-<p>Xin chào,</p>
-<p>{{message}}</p>
-<p>Vui lòng liên hệ với chúng tôi qua email:
-  {{recruiterEmail}}
-  nếu bạn có bất kỳ câu hỏi nào.</p>
-<p>Trân trọng,</p>
-<p>Đội ngũ tuyển dụng</p>
+<html lang='vi'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Cập nhật trạng thái</title>
+    <style>
+      body { font-family: Arial, sans-serif; background-color: #f4f4f9; color:
+      #333; margin: 0; padding: 20px; } .email-container { max-width: 600px;
+      margin: 0 auto; background: #fff; border-radius: 8px; box-shadow: 0 4px
+      8px rgba(0, 0, 0, 0.1); padding: 20px; } .header { text-align: center;
+      padding: 20px 0; background-color: #007bff; color: #fff; border-radius:
+      8px 8px 0 0; } .header h1 { margin: 0; font-size: 24px; } .content {
+      padding: 20px; font-size: 16px; line-height: 1.6; } .content p { margin: 0
+      0 10px; } .footer { text-align: center; margin-top: 20px; font-size: 14px;
+      color: #777; } .btn { display: inline-block; background-color: #007bff;
+      color: #fff; text-decoration: none; padding: 10px 20px; border-radius:
+      5px; margin-top: 10px; } .btn:hover { background-color: #0056b3; }
+    </style>
+  </head>
+  <body>
+    <div class='email-container'>
+      <div class='header'>
+        <h1>Cập nhật trạng thái hồ sơ</h1>
+      </div>
+      <div class='content'>
+        <p>Xin chào,</p>
+        <p>{{message}}</p>
+        <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ qua email:
+          <strong>{{recruiterEmail}}</strong></p>
+        {{#if status}}
+          <a href='mailto:{{recruiterEmail}}' class='btn'>Liên hệ nhà tuyển dụng</a>
+        {{/if}}
+      </div>
+      <div class='footer'>
+        <p>Trân trọng,<br />Đội ngũ tuyển dụng</p>
+      </div>
+    </div>
+  </body>
+</html>
