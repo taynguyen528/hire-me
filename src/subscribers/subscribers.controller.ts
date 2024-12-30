@@ -45,6 +45,7 @@ export class SubscribersController {
   }
 
   @Get(':id')
+  @SkipCheckPermission()
   @ResponseMessage('Fetch subscriber by id')
   findOne(@Param('id') id: string) {
     return this.subscribersService.findOne(id);
